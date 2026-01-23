@@ -35,7 +35,7 @@ set(HIGHS_BUILD_SHARED OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(Catch2)
 FetchContent_MakeAvailable(highs)
 
-add_library(integer_solver src/lp.cpp src/highs_interface.cpp src/brute_force.cpp)
+add_library(integer_solver src/lp.cpp src/lp2.cpp src/highs_interface.cpp src/brute_force.cpp)
 
 target_include_directories(integer_solver
   PUBLIC
@@ -73,5 +73,13 @@ add_executable(utils_tests tests/test.cpp)
 
 target_link_libraries(utils_tests PRIVATE
     integer_solver 
+    Catch2::Catch2WithMain
+)
+
+
+add_executable(utils_tests2 tests/test2.cpp)
+
+target_link_libraries(utils_tests2 PRIVATE
+    integer_solver
     Catch2::Catch2WithMain
 )
