@@ -13,7 +13,7 @@ static inline bool satisfies_equalities(const Constraints& constraints, const Ei
         if (!approx_equal(*lowest, *highest)) return false;
 
         double lhs = 0.0;
-        for (int i = 0; i < x.size(); ++i) lhs += row.at(i) * (double)x(i);
+        for (int i = 0; i < x.size(); ++i) lhs += row(i) * (double)x(i);
 
         if (!approx_equal(lhs, *highest, 1e-7)) return false; // equality tolerance
     }
@@ -41,7 +41,7 @@ static inline std::vector<int> infer_ubs_from_equalities(
         bool single = true;
 
         for (int k = 0; k < n_vars; ++k) {
-            const double rk = row.at(k);
+            const double rk = row(k);
             if (std::abs(rk) > tol) {
                 if (j != -1) { single = false; break; }
                 j = k;
@@ -70,20 +70,20 @@ static inline std::vector<int> infer_ubs_from_equalities(
 
 // Brute-force maximization over ALL integer points x >= 0 with x_i <= ub_i
 // WARNING: exponential in n and ub sizes; only usable for small problems.
-SolutionI brute_force_maximize_equalities(
+std::optional<SolutionI> brute_force_maximize_equalities(
     const Constraints& constraints,
     const Eigen::VectorXd& cost,
     int default_ub,
     bool infer_ubs) {
     const int n = (int)cost.size();
-    if (n == 0) return {Eigen::VectorXi(), 0.0, false};
+    if (n == 0) return std::nullopt;
 
     std::vector<int> ub = infer_ubs ? infer_ubs_from_equalities(constraints, n, default_ub)
                                     : std::vector<int>(n, default_ub);
 
     // If any inferred ub is -1, there is no integer solution consistent with single-var equalities.
     for (int i = 0; i < n; ++i) {
-        if (ub[i] < 0) return {Eigen::VectorXi::Zero(n), 0.0, false};
+        if (ub[i] < 0) return std::nullopt;
     }
 
     Eigen::VectorXi x = Eigen::VectorXi::Zero(n);
@@ -114,7 +114,7 @@ SolutionI brute_force_maximize_equalities(
 
     dfs(0);
 
-    return {best_x, best_obj, found};
+    return SolutionI{best_x, best_obj};
 }
 
 

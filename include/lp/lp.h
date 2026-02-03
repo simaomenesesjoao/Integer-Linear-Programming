@@ -1,48 +1,91 @@
 #pragma once
 #include <Eigen/Dense>
 #include <optional>
+#include <ostream>
 #include <map>
 
-constexpr double tol = 1e-9;
 constexpr unsigned int DEBUG = 0;
-constexpr unsigned int DEBUG_ILP = 0;
 
+using VectorD = Eigen::VectorXd;
+using VectorI = Eigen::VectorXi;
+using Matrix = Eigen::MatrixXd;
 
-bool is_equal(double x, double y);
-bool is_equal(const Eigen::VectorXd& x, const Eigen::VectorXd& y);
-bool is_equal(const Eigen::VectorXi& x, const Eigen::VectorXi& y);
+constexpr double tol = 1e-9;
+
+struct Solution {
+    VectorD coordinates;
+    double cost;
+};
+
+struct SolutionI {
+    VectorI coordinates;
+    double cost;
+};
 
 struct Constraint {
     std::optional<double> smallest;
-    std::vector<double> row;
+    VectorD row;
     std::optional<double> largest;
+
+    Constraint(const std::optional<double>& smallest, const std::vector<double>& row, const std::optional<double>& largest);
 
     friend std::ostream& operator<<(std::ostream& stream, const Constraint& constraint);
 };
 
 using Constraints = std::vector<Constraint>;
 
-struct Solution {
-    Eigen::VectorXd coordinates;
-    double cost;
-    bool exists;
+class Tableau {
+public:
+    Tableau(const Matrix& matrix, unsigned int basis_dimension, unsigned int num_constraints, unsigned int num_artificial);
+    bool simplex_pivot(unsigned int col);
+    void pivot(unsigned int col, unsigned int row);
+
+    friend std::ostream& operator<<(std::ostream& stream, const Tableau& tableau){
+        stream << tableau.matrix << "\n" << tableau.basis.transpose() << "\n" << tableau.dictionary.transpose();
+        return stream;
+    }
+
+    VectorD get_cost_function(){
+        return matrix.row(matrix.rows() - 1).head(matrix.cols() - 1);
+    }
+
+    VectorD get_rhs(){
+        return matrix.col(matrix.cols() - 1).head(num_constraints);
+    }
+
+    double get_cost(){
+        return -matrix(matrix.rows() - 1, matrix.cols() - 1);
+    }
+
+    VectorI get_dictionary(){
+        return dictionary;
+    }
+
+    VectorD get_cartesian_coordinates();
+
+    Tableau trim_tableau();
+
+    const unsigned int basis_dimension;
+    const unsigned int num_constraints;
+    const unsigned int num_artificial;
+
+private:
+    VectorI basis;
+    VectorI dictionary;
+    Matrix matrix;
 };
 
-struct SolutionI {
-    Eigen::VectorXi coordinates;
-    double cost;
-    bool exists;
-};
+bool is_equal(double x, double y);
 
-std::optional<std::pair<Eigen::MatrixXd, std::vector<unsigned int>>> solve_lp(
-    const Eigen::MatrixXd& A, 
-    std::vector<unsigned int> pivots, 
-    unsigned int num_constraints, 
-    unsigned int cost_row, 
-    bool pivot_out_artificial = false);
+void gaussian_elimination(Matrix& matrix, unsigned int row, unsigned int col);
 
-Solution optimize(const Constraints& constraints, const Eigen::VectorXd& cost);
-SolutionI optimize_ilp(const Constraints& constraints, const Eigen::VectorXd& cost);
+void pivot(Tableau& matrix, unsigned int col);
 
-Eigen::MatrixXd add_slack(const Constraints& constraints, const Eigen::VectorXd& cost);
-Eigen::MatrixXd add_artificial(const Eigen::MatrixXd& A);
+void pivot_into_feasible(Tableau& tableau);
+
+Tableau build_tableau(const Constraints& constraints, const VectorD& cost);
+
+bool simplex(Tableau& tableau);
+
+
+std::optional<Solution> solve_lp(const Constraints& constraints, const VectorD& cost);

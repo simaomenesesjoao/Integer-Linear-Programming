@@ -3,7 +3,7 @@
 
 // Adapter: same interface as your solver.
 // Maximizes cost^T x, subject to constraints and x >= 0 integer.
-SolutionI optimize_ilp_highs(const Constraints& constraints,
+std::optional<SolutionI> optimize_ilp_highs(const Constraints& constraints,
                                     const Eigen::VectorXd& cost,
                                     bool quiet) {
     const int n = (int)cost.size();
@@ -51,7 +51,7 @@ SolutionI optimize_ilp_highs(const Constraints& constraints,
     // ----- Solve -----
     const HighsStatus run_status = highs.run();
     if (run_status != HighsStatus::kOk) {
-        return {Eigen::VectorXi::Zero(n), 0.0, false};
+        return std::nullopt;
     }
 
     const HighsModelStatus ms = highs.getModelStatus();
@@ -60,7 +60,7 @@ SolutionI optimize_ilp_highs(const Constraints& constraints,
     if (ms != HighsModelStatus::kOptimal) {
         // Could map other statuses if you want:
         // kInfeasible, kUnbounded, kFeasible, etc.
-        return {Eigen::VectorXi::Zero(n), 0.0, false};
+        return std::nullopt;
     }
 
     const HighsSolution& sol = highs.getSolution();
@@ -76,5 +76,5 @@ SolutionI optimize_ilp_highs(const Constraints& constraints,
 
     double obj = highs.getObjectiveValue(); // already maximized
 
-    return {x_int, obj, true};
+    return SolutionI{x_int, obj};
 }
