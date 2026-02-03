@@ -1,5 +1,6 @@
 #include <iostream>
 #include "lp/lp.h"
+#include "lp/ilp.h"
 #include "lp/highs_interface.h"
 #include "lp/brute_force.h"
 #include <Eigen/Dense>
@@ -384,7 +385,7 @@ TEST_CASE("Minimization in a point", "[simplex]") {
 //             cost << 1.1, 1.0, 0.9;
 //             const auto sol = optimize_ilp(constraints, cost);
 
-//             REQUIRE(sol.exists);
+//             REQUIRE(sol);
 //         }
 //     }
 // }
@@ -398,7 +399,7 @@ TEST_CASE("Minimization in a point", "[simplex]") {
 //         Objective: maximize 6x + 3y
 //     */
 
-//     SECTION("Given an unbounded region"){
+//     SECTION("Given an bounded region"){
 //         unsigned int cols = 2;
 
 //         Constraints constraints;
@@ -408,6 +409,8 @@ TEST_CASE("Minimization in a point", "[simplex]") {
 //         cost << 6.0, 3.0;
 
 //         const auto sol = optimize_ilp(constraints, cost);
+
+//         REQUIRE(sol);
         
 //     }
 // }
@@ -432,7 +435,8 @@ TEST_CASE("Minimization in a point", "[simplex]") {
 //         Eigen::VectorXi solution(cols);
 //         solution << 1, 4;
         
-//         REQUIRE(is_equal(solution, sol.coordinates));
+//         REQUIRE(sol);
+//         REQUIRE(is_equal(solution, sol->coordinates));
 //     }
 // }
 
@@ -456,7 +460,7 @@ TEST_CASE("Minimization in a point", "[simplex]") {
 //         Eigen::VectorXi solution(cols);
 //         solution << 1, 2;
         
-//         REQUIRE(is_equal(solution, sol.coordinates));
+//         REQUIRE(is_equal(solution, sol->coordinates));
 //     }
 // }
 
@@ -465,18 +469,19 @@ TEST_CASE("Minimization in a point", "[simplex]") {
 //     unsigned int cols = 2;
 
 //     Constraints constraints;
-//     constraints.push_back({std::nullopt, {2.0, 3.0}, 13.2}); // 2x + 3y <= 13
-//     constraints.push_back({std::nullopt, {3.0, 2.0}, 13.4}); // 3x + 2y <= 13
+//     constraints.push_back({std::nullopt, {2.0, 3.0}, 13.2}); // 2x + 3y <= 13.2
+//     constraints.push_back({std::nullopt, {3.0, 2.0}, 13.4}); // 3x + 2y <= 13.4
 
 //     Eigen::VectorXd cost(cols);
-//     cost << 1.1, 1.0; // max x + y
+//     cost << 1.1, 1.0; // max 1.1*x + 1.0*y
 
 //     const auto sol = optimize_ilp(constraints, cost);
 
 //     Eigen::VectorXi solution(cols);
 //     solution << 3, 2; // or (2,3) depending on tie-break
 
-//     REQUIRE(is_equal(solution, sol.coordinates));
+//     REQUIRE(sol);
+//     REQUIRE(is_equal(solution, sol->coordinates));
 // }
 
 // TEST_CASE("Equalities", "[simplex][ilp]") {

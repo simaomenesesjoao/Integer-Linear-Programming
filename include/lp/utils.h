@@ -46,15 +46,3 @@ std::ostream& operator<<(std::ostream& stream, const std::map<T, U>& map){
     }
     return stream;
 }
-
-inline bool is_equal(double x, double y){
-    return std::abs(x-y) < tol;
-}
-
-inline bool is_equal(const Eigen::VectorXd& x, const Eigen::VectorXd& y){
-    return is_equal((x-y).norm(), 0);
-}
-
-inline bool is_equal(const Eigen::VectorXi& x, const Eigen::VectorXi& y){
-    return is_equal((x-y).norm(), 0);
-}

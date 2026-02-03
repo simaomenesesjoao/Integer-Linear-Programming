@@ -87,7 +87,7 @@ std::optional<Eigen::VectorXi> convert_to_int(const Eigen::VectorXd& coordinates
 
 
 
-SolutionI optimize_ilp(const Constraints& constraints, const Eigen::VectorXd& cost){
+std::optional<SolutionI> optimize_ilp(const Constraints& constraints, const Eigen::VectorXd& cost){
     if(DEBUG_ILP){
         std::cout << "-------- Starting optimize_ILP ------------- \n";
     }
@@ -250,6 +250,10 @@ SolutionI optimize_ilp(const Constraints& constraints, const Eigen::VectorXd& co
             
         }
 
+    }
+    
+    if(!sol_exists){
+        return std::nullopt;
     }
 
     return SolutionI{solution_coords, best_cost};
