@@ -1,8 +1,8 @@
 import {Application, Graphics} from 'pixi.js';
-import {PagePoint, WindowPoint, CoordPoint, ConstraintLine, Grid, PageToWindow, WindowToCoord, PageToCoord, CoordLimits, LineGenerator,  OrthogonalArrow, polygonFromConstraints, Polygon} from "./utils/lp.ts";
-import {Constraint} from "./utils/simplex_cpp.ts";
+import {PagePoint, WindowPoint, CoordPoint, ConstraintLine, Grid, PageToWindow, WindowToCoord, PageToCoord, CoordLimits, LineGenerator,  OrthogonalArrow, polygonFromConstraints, Polygon} from "../utils/lp.ts";
+import {Constraint} from "../utils/simplex_cpp.ts";
 
-export interface Interface {
+export interface InterfaceS {
   container: HTMLElement;
   width: number;
   height: number;
@@ -28,7 +28,7 @@ export class SlackSnippet {
   topRightCoord: {x: number, y: number};
   botLeftCoord: {x: number, y: number};
 
-  constructor({ container, width, height, app_width, constraints, include_polygon, interactive_lines, active_lines, topRightCoord, botLeftCoord}: Interface) {
+  constructor({ container, width, height, app_width, constraints, include_polygon, interactive_lines, active_lines, topRightCoord, botLeftCoord}: InterfaceS) {
     this.container = container;
     this.width = width;
     this.height = height;

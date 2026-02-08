@@ -1,8 +1,8 @@
 import {Application, Graphics} from 'pixi.js';
-import {Arrow, LineManager, PagePoint, WindowPoint, CoordPoint, ConstraintLine, Grid, PageToWindow, WindowToCoord, PageToCoord, OrthogonalArrow, CoordLimits, LineGenerator, TableauToText, polygonFromConstraints, MatrixView} from "./utils/lp.ts";
-import {Constraint} from "./utils/simplex_cpp.ts";
+import {Arrow, LineManager, PagePoint, WindowPoint, CoordPoint, ConstraintLine, Grid, PageToWindow, WindowToCoord, PageToCoord, OrthogonalArrow, CoordLimits, LineGenerator, TableauToText, polygonFromConstraints, MatrixView} from "../utils/lp.ts";
+import {Constraint} from "../utils/simplex_cpp.ts";
 
-export interface Interface {
+export interface InterfaceP {
   container: HTMLElement;
   width: number;
   height: number;
@@ -26,7 +26,7 @@ export class PivotSnippet {
   topRightCoord: {x: number, y: number};
   botLeftCoord: {x: number, y: number};
 
-  constructor({container, width, height, app_width, constraints, costFunction, showMatrix, topRightCoord, botLeftCoord}: Interface) {
+  constructor({container, width, height, app_width, constraints, costFunction, showMatrix, topRightCoord, botLeftCoord}: InterfaceP) {
     this.container = container;
     this.width = width;
     this.height = height;

@@ -1,8 +1,8 @@
 import {Application, Graphics} from 'pixi.js';
-import {Polygon, PagePoint, WindowPoint, CoordPoint, ConstraintLine, Grid, PageToWindow, WindowToCoord, PageToCoord, CoordLimits, LineGenerator,  polygonFromConstraints} from "./utils/lp.ts";
-import {Constraint} from "./utils/simplex_cpp.ts";
+import {Polygon, PagePoint, WindowPoint, CoordPoint, ConstraintLine, Grid, PageToWindow, WindowToCoord, PageToCoord, CoordLimits, LineGenerator,  polygonFromConstraints} from "../utils/lp.ts";
+import {Constraint} from "../utils/simplex_cpp.ts";
 
-export interface Interface {
+export interface InterfaceR {
   container: HTMLElement;
   width: number;
   height: number;
@@ -19,7 +19,7 @@ export class RegionSnippet {
   app_width: number;
   constraints: Constraint[];
 
-  constructor({ container, width, height, app_width, constraints }: Interface) {
+  constructor({ container, width, height, app_width, constraints }: InterfaceR) {
     this.container = container;
     this.width = width;
     this.height = height;

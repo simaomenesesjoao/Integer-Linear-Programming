@@ -13,8 +13,10 @@
         displayMath: [['$$', '$$'], ['\\[', '\\]']]
       }
     };
+
   </script>
   <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
 
     <title>Linear Programming - Simplex</title>
 
@@ -91,9 +93,6 @@ $x+y \leq 7.5$<br>
 These constraints together define the following region in the plane:<br><br>
 
 <div id="region1"></div>
-<script type="module">
-  import { initRegion } from "./region1.ts";
-</script>
 
 The region in blue is called the <b>feasible region</b> because every point inside it satisfies all the constraints. When $x$ and $y$  are allowed to be real numbers, it is easy to believe that the optimal solution lies at one of the vertices of this bounded region, if it exists. A few other scenarios can also happen:
 <ul>
@@ -103,9 +102,6 @@ The region in blue is called the <b>feasible region</b> because every point insi
 </ul><br>
 
 <div id="region2"></div>
-<script type="module">
-  import { initRegion } from "./region2.ts";
-</script>
 
 Visually, it is obvious to understand what vertex has the optimal solution when there are only two variables involved and a few constraints. More complicated Linear Programming problems can have thousands of variables, and lie in an unimaginable 1000-dimensional space, so we need a more robust way to find a solution. <br><br>
 
@@ -157,7 +153,6 @@ The first step to understand how the Simplex Method is implemented is to realize
 As an example, in 2D, the constraint $2x+3y\leq15$ can be parametrized by using the slack variable $s$ as $2x + 3y + s = 15$. The constraint being satisfied is equivalent to $s\geq0$. In the snippet below, you can see this in action: as you move the mouse around, the slack variable $s$ will tell you how far away the mouse location is from satisfying the constraint. When $s$ is positive, the mouse is located in a region that satisfies the constraint.<br><br>
 
 <div id="slack1"></div>
-<script type="module"> import { initRegion } from "./slack1.ts"; </script>
 
 Things get a lot more interesting when several constraints are at play. For example, consider the following inequalities in 2D<br>
 
@@ -172,7 +167,6 @@ $x-3y +s_2 = 2$<br>
 This can be seen in the snippet below. Click on the lines to isolate each variable.
 
 <div id="slack2"></div>
-<script type="module"> import { initRegion } from "./slack2.ts"; </script>
 
 Considering this is a 2D setting, setting the two slack variables to zero will yield a system of equations that provides the intersection point once solved (assuming the lines are not parallel). The solution in this case is $(x,y) =(5, 1)$. More generally, the variables $s_1$ and $s_2$ are able to describe any point in the plane - they form a (not necessarily orthogonal) <b>coordinate system</b>. Importantly, when $s_1$ and $s_2$ are non-negative, they always yield points that satisfy the corresponding inequalities! <b>Slack variables provide a convenient way to parametrize regions bounded by inequalities!</b> To do this more generally in $N$ dimensions, we just need $N$ inequalities that contain no parallel hyperplanes.
 
@@ -185,7 +179,6 @@ $x+y \geq  3$<br>
 which describes the following unbounded region in the plane. <br><br>
 
 <div id="slack3"></div>
-<script type="module"> import { initRegion } from "./slack3.ts"; </script>
 
 To use slack variables, start by expressing the inequalities using $\leq$ signs, so that slack variables can retain the same interpretation as before.<br>
 $-y\leq -1$<br>
@@ -228,7 +221,7 @@ $x =2$<br>
 Visually, the region looks like this now, under the new coordinate system:
 
 <div id="slack4"></div>
-<script type="module"> import { initRegion } from "./slack4.ts"; </script>
+
 
 Remember that the origin of this new reference frame comes from the intersection of the lines defined by $s_1=s_4=0$. <br><br>
 
@@ -247,7 +240,6 @@ Starting from the coordinate system's origin ($s_1=s_4=0$), let's try to move al
 
 
 <div id="slack5"></div>
-<script type="module"> import { initRegion } from "./slack5.ts"; </script>
 
 First, note that we can either try to set $s_2$, $s_3$ or $x$ to zero by increasing $s_4$ from zero while keeping $s_1=0$, giving us three new candidate vertices. Visually, this represents all the intersections of the $s_1=0$ line with all the other lines besides $s_4=0$. It also clear that none of these points remain inside the feasible region. Mathematically, looking at the equations, this is represented by the fact that the only way to get $s_2$, $s_3$ or $x$ to zero while $s_1$ is already zero, is to make $s_4$ be negative. That's because the coefficient of $s_4$ in all the corresponding equations is positive. In conclusion, we cannot pivot away from the current boundary vertex into a new boundary vertex by staying on the $s_1=0$ line.<br><br>
 
@@ -278,7 +270,6 @@ Thus, we arrive at the following prescription to move from one boundary vertex t
 The following snippet shows how the systems of equations change as we pivot from one vertex to the other. Click on a non-highlighted line to use the corresponding slack variable for the new basis.
 
 <div id="pivot1"></div>
-<script type="module"> import { initRegion } from "./pivot1.ts"; </script>
 
 This process of changing coordinates is called pivoting, and is very efficiently done with matrices, in a similar fashion to Gaussian elimination.
 
@@ -532,9 +523,6 @@ $x+y\geq 3$<br>
 $x+y\leq 9$<br>
 The constraints define the following region:
 <div id="region3"></div>
-<script type="module">
-  import { initRegion } from "./region3.ts";
-</script>
 
 Including slack variables (keeping in mind that $x$ and $y$ already function as slack variables for the Cartesian axes), we get <br>
 $-x-y+s_{1}=-3$<br>
@@ -550,8 +538,6 @@ Now, it's trivial to find a boundary point of this extended problem. Setting the
 <div id="three-container">
   <canvas id="bg"></canvas>
 </div>
-<script type="module" src="../js_widgets/3d.js"></script>
-<br>
 
 From this point, we just need to pivot from the initial basis $(x,y,z)$ into the new basis $(x,y,s_1)$ and then pivot along its edges until we find a vertex such that $z=0$. Then, we will have found a boundary vertex of the original bounded region. In order to figure out which variables to pivot into, we can simply choose the pivots that <b>minimize</b> $z$. This is effectively done by maximizing the cost function $I=-z$.
 
@@ -640,10 +626,6 @@ $$
 The basis is now $(x,s_2)$ and the dictionary is $(y, s_1)$. The cost function reads $I=-x-s_2 + 18$. The coordinates of the origin vertex are $(x,y)=(0,9)$. All the variables' coefficients are negative in the cost function now, meaning we have reached the end of the Simplex algorithm and found the optimal vertex at $(x,y)=(0,9)$. Try it out for yourself in the interactive widget below! Just like before, clicking on lines performs a change of variables, but now you can also see what happens to the matrix. The direction of increasing cost function is represented by the red arrow.<br><br>
 
 <div id="pivot2"></div>
-<script type="module"> import { initRegion } from "./pivot2.ts"; </script>
-
-  </body>
-</html>
 
 <h1>Conclusion and additional notes</h1>
 The Simplex Method is one of the most popular and powerful ways to solve Linear Programming problems, and one of the goals of this article was to make it more accessible to people learning about it. <br><br>
@@ -653,3 +635,8 @@ For the sake of simplicity I haven't mentioned some pathological but critical ca
 I also did not comment on the algorithmic complexity of the Simplex algorithm. It is famously fast in practice (especially when compared to its brute-force counterpart mentioned in the beginning) but it can be exponentially bad in the worst case. The Klee-Minty hypercubes are the cannonical worst-case scenario for the Simplex algorithm, forcing it to visit <b>every single boundary vertex</b> and causing it to be exponential in the problem's dimensionality. <br><br>
 
 Moving forward, I'd like to cover these and other topics related to LP (like Integer Linear Programming). For the time being, however, I thought the topics covered here were already interesting enough to be made into interactive widgets and explained from my own ideas and understanding. Looking forward to iterate on this!
+
+
+  </body>
+  <script type="module" src="/main.ts"></script>
+</html>

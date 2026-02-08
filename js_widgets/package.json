@@ -1,0 +1,17 @@
+{
+  "name": "@simao/js-widgets",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "dependencies": {
+    "pixi.js": "^8.16.0",
+    "three": "^0.182.0"
+  },
+  "devDependencies": {
+    "vite": "^7.3.1"
+  },
+  "scripts": {
+    "build": "vite build"
+  }
+}
