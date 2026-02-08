@@ -1,3 +1,5 @@
 build/
+!/dist/build
 .vscode/
+.vite/
 node_modules/
