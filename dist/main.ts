@@ -1,6 +1,6 @@
 import { init3D, Constraint, PivotSnippet, SlackSnippet} from '@simao/js-widgets'; 
 
-export async function initPivot1() {
+export async function initPivot1(id: string) {
     const constraints: Constraint[] = [];
     constraints.push(new Constraint({lower: 0, a:  1.0, b: 0.0, upper: undefined, label: "x"}));
     constraints.push(new Constraint({lower: 0, a:  0.0, b: 1.0, upper: undefined, label: "y"}));
@@ -9,7 +9,7 @@ export async function initPivot1() {
     constraints.push(new Constraint({lower: undefined, a:  2.0, b: 1.0, upper: 15.0, label: "s₃"}));
 
     const snippet = new PivotSnippet({
-        container: document.getElementById("pivot1")!,
+        container: document.getElementById(id)!,
         width: 800,
         height: 330,
         app_width: 300,
@@ -24,7 +24,7 @@ export async function initPivot1() {
     return { constraints, snippet };
 }
 
-export async function initPivot2() {
+export async function initPivot2(id: string) {
     const constraints: Constraint[] = [];
     constraints.push(new Constraint({lower: 0, a:  1.0, b: 0.0, upper: undefined, label: "x"}));
     constraints.push(new Constraint({lower: 0, a:  0.0, b: 1.0, upper: undefined, label: "y"}));
@@ -32,7 +32,7 @@ export async function initPivot2() {
     constraints.push(new Constraint({lower: undefined, a: 1.0, b: 1.0, upper: 9.0, label: "s₂"}));
 
     const snippet = new PivotSnippet({
-        container: document.getElementById("pivot2")!,
+        container: document.getElementById(id)!,
         width: 800,
         height: 330,
         app_width: 300,
@@ -47,7 +47,7 @@ export async function initPivot2() {
     return { constraints, snippet };
 }
 
-export async function initRegion1() {
+export async function initRegion1(id: string) {
     const constraints = [];
     constraints.push(new Constraint({lower: 0, a:  1.0, b: 0.0, upper: undefined, label: "x"}));
     constraints.push(new Constraint({lower: 0, a:  0.0, b: 1.0, upper: undefined, label: "y"}));
@@ -56,7 +56,7 @@ export async function initRegion1() {
     constraints.push(new Constraint({lower: undefined, a:  1.0, b: 1.0, upper: 7.5, label: "s"}));
 
     const snippet = new SlackSnippet({
-        container: document.getElementById("region1")!,
+        container: document.getElementById(id)!,
         width: 800,
         height: 330,
         app_width: 300,
@@ -72,14 +72,14 @@ export async function initRegion1() {
     return { constraints, snippet };
 }
 
-export async function initRegion2() {
+export async function initRegion2(id: string) {
     const constraints = [];
     constraints.push(new Constraint({lower: 0, a:  -1.0, b: 0.0, upper: undefined, label: "1"}));
     constraints.push(new Constraint({lower: 0, a:  0.0, b: -1.0, upper: undefined, label: "2"}));
     constraints.push(new Constraint({lower: undefined, a:  -1.0, b: 1.0, upper: 3.0, label: "3"}));
 
     const snippet = new SlackSnippet({
-        container: document.getElementById("region2")!,
+        container: document.getElementById(id)!,
         width: 800,
         height: 330,
         app_width: 300,
@@ -95,7 +95,7 @@ export async function initRegion2() {
     return { constraints, snippet };
 }
 
-export async function initRegion3() {
+export async function initRegion3(id: string) {
     const constraints = [];
     constraints.push(new Constraint({lower: 0, a:  -1.0, b: 0.0, upper: undefined, label: "1"}));
     constraints.push(new Constraint({lower: 0, a:  0.0, b: -1.0, upper: undefined, label: "2"}));
@@ -103,7 +103,7 @@ export async function initRegion3() {
     constraints.push(new Constraint({lower: 3.0, a:  1.0, b: 1.0, upper: undefined, label: "3"}));
 
     const snippet = new SlackSnippet({
-        container: document.getElementById("region3")!,
+        container: document.getElementById(id)!,
         width: 800,
         height: 330,
         app_width: 300,
@@ -119,12 +119,12 @@ export async function initRegion3() {
     return { constraints, snippet };
 }
 
-export async function initSlack1() {
+export async function initSlack1(id: string) {
     const constraints = [];
     constraints.push(new Constraint({lower: undefined, a:  2.0, b: 3.0, upper: 15.0, label: "s"}));
 
     const snippet = new SlackSnippet({
-        container: document.getElementById("slack1")!,
+        container: document.getElementById(id)!,
         width: 800,
         height: 330,
         app_width: 300,
@@ -140,13 +140,13 @@ export async function initSlack1() {
     return { constraints, snippet };
 }
 
-export async function initSlack2() {
+export async function initSlack2(id: string) {
     const constraints = [];
     constraints.push(new Constraint({lower: undefined, a:  2.0, b: 1.0, upper: 11.0, label: "s₁"}));
     constraints.push(new Constraint({lower: undefined, a:  1.0, b: -3.0, upper: 2.0, label: "s₂"}));
 
     const snippet = new SlackSnippet({
-        container: document.getElementById("slack2")!,
+        container: document.getElementById(id)!,
         width: 800,
         height: 330,
         app_width: 300,
@@ -162,7 +162,7 @@ export async function initSlack2() {
     return { constraints, snippet };
 }
 
-export async function initSlack3() {
+export async function initSlack3(id: string) {
     // Four constraints, unbounded region
     const constraints = [];
     constraints.push(new Constraint({lower: 1.0, a:  0.0, b: 1.0, upper: undefined, label: "s1"}));
@@ -171,7 +171,7 @@ export async function initSlack3() {
     constraints.push(new Constraint({lower: 3.0, a:  1.0, b: 1.0, upper: undefined, label: "s4"}));
 
     const snippet = new SlackSnippet({
-        container: document.getElementById("slack3")!,
+        container: document.getElementById(id)!,
         width: 800,
         height: 330,
         app_width: 300,
@@ -187,7 +187,7 @@ export async function initSlack3() {
     return { constraints, snippet };
 }
 
-export async function initSlack4() {
+export async function initSlack4(id: string) {
     // Four constraints, unbounded region
     const constraints = [];
     constraints.push(new Constraint({lower: 1.0, a:  0.0, b: 1.0, upper: undefined, label: "s1"}));
@@ -196,7 +196,7 @@ export async function initSlack4() {
     constraints.push(new Constraint({lower: 3.0, a:  1.0, b: 1.0, upper: undefined, label: "s4"}));
 
     const snippet = new SlackSnippet({
-        container: document.getElementById("slack4")!,
+        container: document.getElementById(id)!,
         width: 800,
         height: 330,
         app_width: 300,
@@ -212,7 +212,7 @@ export async function initSlack4() {
     return { constraints, snippet };
 }
 
-export async function initSlack5() {
+export async function initSlack5(id: string) {
     // Four constraints, unbounded region
     const constraints = [];
     constraints.push(new Constraint({lower: 0.0, a:  0.0, b: 1.0, upper: undefined, label: "y"}));
@@ -223,7 +223,7 @@ export async function initSlack5() {
     constraints.push(new Constraint({lower: 3.0, a:  1.0, b: 1.0, upper: undefined, label: "s4"}));
 
     const snippet = new SlackSnippet({
-        container: document.getElementById("slack5")!,
+        container: document.getElementById(id)!,
         width: 800,
         height: 330,
         app_width: 300,
@@ -239,17 +239,21 @@ export async function initSlack5() {
     return { constraints, snippet };
 }
 
-const canvas = document.querySelector('#bg') as HTMLCanvasElement;
-document.addEventListener('DOMContentLoaded', () => {
-    initPivot1();
-    initPivot2();
-    initRegion1();
-    initRegion2();
-    initRegion3();
-    initSlack1();
-    initSlack2();
-    initSlack3();
-    initSlack4();
-    initSlack5();
+export function init(){
+    initPivot1("pivot1");
+    initPivot2("pivot2");
+    initRegion1("region1");
+    initRegion2("region2");
+    initRegion3("region3");
+    initSlack1("slack1");
+    initSlack2("slack2");
+    initSlack3("slack3");
+    initSlack4("slack4");
+    initSlack5("slack5");
+    const canvas = document.querySelector('#bg') as HTMLCanvasElement;
     init3D('three-container', canvas);
-});
+}
+
+// document.addEventListener('DOMContentLoaded', () => {
+//     init();
+// });

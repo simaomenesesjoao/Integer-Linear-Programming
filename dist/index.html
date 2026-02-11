@@ -2,20 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.min.js"></script>
+    <!-- <link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.min.css" rel="stylesheet" /> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.min.js"></script> -->
     
-
-     <script>
-    window.MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']]
-      }
-    };
-
-  </script>
-  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 
     <title>Linear Programming - Simplex</title>
@@ -50,11 +39,12 @@
   </head>
 
   <body>
-    <h1>Linear Programming</h1>
-    By Simão M. João<br><br>
+<div class="content">
+    <br><br>
+<h1>Linear Programming</h1>
 
+<section class="section-block">
 Linear Programming is a topic that is typically introduced in school and never approached again by the vast majority of people. I came across this topic again while trying to solve a particularly tricky problem in <a href="https://adventofcode.com/2025/day/10">Advent of Code</a> and was very disappointed by the lack of good resources on this topic. While the literature on the topic itself is vast, I felt like the intuition behind the methods was not sufficiently explored, and easily lended itself to some cool visuals. So, I decided to explore this topic in my own way, striving for interactivity and clarity, rather than algorithmic performance or mathematical exactness. Exactness and performance are already extensively covered in the literate, and in excelent projects like HiGHs (see resources below). Along this article, I provide code snippets for you to code along to. When put together, these snippets will hopefully give you a clear self-contained picture of how to programmatically solve a Linear Programming problem! 
-<br><br>
 
 <b>Want to cite this?</b> Use the Zenodo link:<br><br>
 
@@ -68,28 +58,42 @@ Additional resources:
 </ul>
 
 TODO:
-- referencias ao longo do texto
-- table of contents automática
+<ul>
+  <li>referencias ao longo do texto</li>
+  <li>table of contents automática</li>
+</ul>
+</section>
 
-<h2>1.1 Introduction</h2>
-Optimisation is a core part of human life. In many aspects of our day-to-day, we try to find the most efficient solution to any given problem. For example, when going to work, we want to do it as quickly as possible in order to minimise the time spent commuting. In theory, we might take the shortest route and go way over the speed limit to get it done as quickly as possible. In practice, however, we have to do it under the constraint of a speed limit. And the shortest route might require paying tolls. Under a budget constraint, that shortest route is no longer ideal. We humans tend to be pretty good at finding generally good intuitive solutions to these kinds of problems, but is there a way to find the absolute best possible solution?<br><br>
+<section class="section-block">
+<h2>Introduction</h2>
+<p>Optimisation is a core part of human life. In many aspects of our day-to-day, we try to find the most efficient solution to any given problem. For example, when going to work, we want to do it as quickly as possible in order to minimise the time spent commuting. In theory, we might take the shortest route and go way over the speed limit to get it done as quickly as possible. In practice, however, we have to do it under the constraint of a speed limit. And the shortest route might require paying tolls. Under a budget constraint, that shortest route is no longer ideal. We humans tend to be pretty good at finding generally good intuitive solutions to these kinds of problems, but is there a way to find the absolute best possible solution?</p>
+</section>
 
-Sadly, in general, the answer is no. But in some specific contexts, problems can be framed in a particularly simple way which has provable optimal solutions. Consider for example the following problem: Bob is working two part-time jobs and he can choose how many hours to work in each. Job A pays £8/h and job B pays £9/h. He is only allowed to work a maximum of 5h in each job, and a maximum of 7.5h total. How many hours in each job should he work to maximise his income? This type of problems are called Linear Programming (LP) problems. This problem is linear because the income function is linear (that is, if Bob works twice the time, he will get twice the money) and the constraints are linear too (the sum of hours worked in both jobs is a linear formula).<br><br>
+<section class="section-block">
+<h3>Linear Programming</h3>
 
-In this case, it's pretty obvious that the best strategy would be for Bob to work the most profitable job for as long as possible, and then switch to the least profitable one with the remaining hours. So he should work job B for 5h and job A for 2.5h. <br><br>
+<p>Sadly, in general, the answer is no. But in some specific contexts, problems can be framed in a particularly simple way which has provable optimal solutions. Consider for example the following problem: Bob is working two part-time jobs and he can choose how many hours to work in each. Job A pays £8/h and job B pays £9/h. He is only allowed to work a maximum of 5h in each job, and a maximum of 7.5h total. How many hours in each job should he work to maximise his income? This type of problems are called Linear Programming (LP) problems. This problem is linear because the income function is linear (that is, if Bob works twice the time, he will get twice the money) and the constraints are linear too (the sum of hours worked in both jobs is a linear formula).</p>
 
-Next, suppose an additional rule is added: only full hours worked are paid. If Bob works 5.5h, he will get paid 5h anyway. Then it only makes sense to work integer hours. Now, the optimal solution is to work job B for 5h and job A for 2h. This is a further restriction on the original problem, and problems of this type are called Integer Linear Programming (ILP) problems.<br><br>
+<p>In this case, it's pretty obvious that the best strategy would be for Bob to work the most profitable job for as long as possible, and then switch to the least profitable one with the remaining hours. So he should work job B for 5h and job A for 2.5h. </p>
 
-So far, it is easy to infer the solution from intuition alone, but what if there are more complicated constraints applied? Or what if Bob was actually juggling four part-time jobs istead of two?<br><br>
+<p>Next, suppose an additional rule is added: only full hours worked are paid. If Bob works 5.5h, he will get paid 5h anyway. Then it only makes sense to work integer hours. Now, the optimal solution is to work job B for 5h and job A for 2h. This is a further restriction on the original problem, and problems of this type are called Integer Linear Programming (ILP) problems.</p>
 
+<p>So far, it is easy to infer the solution from intuition alone, but what if there are more complicated constraints applied? Or what if Bob was actually juggling four part-time jobs istead of two?</p>
+</section>
 
-<h2>1.2 Mathematical formulation</h2>
+<section class="section-block">
+
+<h3>Mathematical formulation</h3>
 To proceed to examine more interesting and complicated versions of the problems above, we need to begin by formulating the problem mathematically. Let $x$ be the number of hours Bob worked in job A and $y$ the number of hours he worked in job B. Then, the total income $I$ per day is $I=8x+9y$. Bob cannot work negative hours, so $x\geq0$ and $y\geq0$. The restriction that neither job can be worked on for longer than 5h per day is expressed as $x\leq5$  and $y\leq5$. Finally, he cannot work more than 7.5h per day, so $x+y\leq 7.5$. The problem then comes down to maximising the function $I=8x+9y$ inside the region bounded by the constraints. Mathematically, we are asked to do the following:<br><br>
 
 Maximize $8x + 9y$ (cost function) subject to the five constraints<br>
-$0\leq x \leq 5$<br>
-$0\leq y \leq 5$<br>
-$x+y \leq 7.5$<br>
+<script type="math/tex; mode=display">
+\begin{aligned}
+ 0 \le x &\le 5 \\
+ 0 \le y &\le 5 \\
+ x + y  &\le 7.5
+\end{aligned}
+</script>
 These constraints together define the following region in the plane:<br><br>
 
 <div id="region1"></div>
@@ -103,9 +107,11 @@ The region in blue is called the <b>feasible region</b> because every point insi
 
 <div id="region2"></div>
 
-Visually, it is obvious to understand what vertex has the optimal solution when there are only two variables involved and a few constraints. More complicated Linear Programming problems can have thousands of variables, and lie in an unimaginable 1000-dimensional space, so we need a more robust way to find a solution. <br><br>
+<p>Visually, it is obvious to understand what vertex has the optimal solution when there are only two variables involved and a few constraints. More complicated Linear Programming problems can have thousands of variables, and lie in an unimaginable 1000-dimensional space, so we need a more robust way to find a solution.</p>
+</section>
 
-<h2>1.2 Linear Programming Geometry</h2>
+<section class="section-block">
+<h3>Linear Programming Geometry</h3>
 In an LP problem with $N$ variables, the complete set of constraints defines a convex region in $N$-dimensional space, whose boundary contains the solution. Every variable is assumed to be non-negative. This can be assumed with no loss of generality, since we can simply shift all the variables by a constant to make this true. Even though the assumptions $x\geq0$ and $y\geq0$ were made explicit in Bob's example, they are typically assumed to be present in all LP problems. <br><br>
 
 Each constraint defines a region bounded by an $N-1$ dimensional hyperplane. For example, the constraint $x+y+2z \leq 4$ splits 3D space into two regions bounded by the strict equality $x+y+2z=4$, which defines a 2D plane in 3D space. Similarly, the constraint $x-y \leq 7$ divides the 2D plane into two regions bounded by the line $x-y=7$. <br><br>
@@ -122,12 +128,9 @@ Although technically correct, this approach falls short due to a couple of pract
   <li>It cannot check whether the region is unbounded. For example, if I want to maximise $x$ subject to $x\geq0$, then there is no solution, because $x$ can be arbitrarily large</li>
 </ol>
 
-The inefficiency comes in part due to our lack of knowledge about the location of the vertices, <b>but what if we already knew the location of one of them?</b> Then, we could simply move along the edges in the direction that increases the cost function, and potentially be done in a couple of steps. This is the idea behind the simplex method, devised by <a href="https://en.wikipedia.org/wiki/George_Dantzig">George Dantzig</a> and whose work later paved the way to a Nobel Prize in Economics. 
+<p>The inefficiency comes in part due to our lack of knowledge about the location of the vertices, <b>but what if we already knew the location of one of them?</b> Then, we could simply move along the edges in the direction that increases the cost function, and potentially be done in a couple of steps. This is the idea behind the <b>Simplex Method</b>, devised by <a href="https://en.wikipedia.org/wiki/George_Dantzig">George Dantzig</a> and whose work later paved the way to a Nobel Prize in Economics.</p>
 
-
-<h1>2. The Simplex Method</h1>
-
-The Simplex Method is very intuitive to explain visually, actually understanding the intuition behing its inner workings require some care. This is exactly what I want to do in the next sections:<br>
+The Simplex Method is very intuitive to explain visually, but actually understanding the intuition behing its inner workings require some care. This is exactly what I want to do in the next sections:<br>
 <ol>
   <li>First, we need to understand how to create coordinate systems out of the constraints</li>
   <li>Second, we will see how changing between these coordinate systems can be used to traverse the edges</li>
@@ -144,11 +147,18 @@ Once that is understood, we will finally be ready to tackle the last question:
   <li>Everything was done using real numbers so far. How do I impose the solutions be integers?</li>
 </ol>
 
-Along the way, I will show <code>C++</code> code snippets that illustrate the algorithms behind the Simplex Method and interactive <code>javascript</code> snippets that allow you to play with the algorithms.
+<p>Along the way, I will show <code>C++</code> code snippets that illustrate the algorithms behind the Simplex Method and interactive <code>javascript</code> snippets that allow you to play with the algorithms.</p>
+</section>
 
-<h2>2.1. Coordinate systems</h2>
+<section class="section-block">
+<h2>Pivoting</h2>
+<p>As mentioned above, a Linear Programming problem consists of a set of constraints and an objective (cost) function. The Simplex Method relies on pivoting across boundary vertices of the feasible region. The first step to understand how the Simplex Method is implemented is to realize that the constraints give rise to natural coordinate systems.</p>
+</section>
 
-The first step to understand how the Simplex Method is implemented is to realize that the constraints give rise to natural coordinate systems. For example, in 3D, the inequality $x-2y+z \leq 3$ separates 3D space into two regions with the plane $x-2y+z = 3$. We can define a "signed distance" to this plane to measure whether or not this constraint is being satisfied, and determine whether a point lies on that plane. Define the new variable $s$ by adding it to the equation $x-2y+z+s = 3$. If $s>0$, then all the points satisfying $x-2y+z+s=3$ will lie parallel to the plane, and will all satisfy the inequality. If $s \leq 0$, they would still be parallel, but the inequality will not be satisfied. If $s=0$, the inequality is strictly satisfied (the point $(x,y,z)$ lies on that plane). This type of variable is called a <b>slack</b> variable. Note that the word “distance” is under quotes because $s$ does not represent the real Cartesian distance to the plane, but is proportional to it, and its sign tells us which side of the constraint we're on. <br><br>
+<section class="section-block">
+<h3>Coordinate systems</h3>
+
+ Let's start with an example. In 3D, the inequality $x-2y+z \leq 3$ separates 3D space into two regions with the plane $x-2y+z = 3$. We can define a "signed distance" to this plane to measure whether or not this constraint is being satisfied, and determine whether a point lies on that plane. Define the new variable $s$ by adding it to the equation $x-2y+z+s = 3$. If $s\gt0$, then all the points satisfying $x-2y+z+s=3$ will lie parallel to the plane, and will all satisfy the inequality. If $s \leq 0$, they would still be parallel, but the inequality will not be satisfied. If $s=0$, the inequality is strictly satisfied (the point $(x,y,z)$ lies on that plane). This type of variable is called a <b>slack</b> variable. Note that the word “distance” is under quotes because $s$ does not represent the real Cartesian distance to the plane, but is proportional to it, and its sign tells us which side of the constraint we're on. <br><br>
 
 As an example, in 2D, the constraint $2x+3y\leq15$ can be parametrized by using the slack variable $s$ as $2x + 3y + s = 15$. The constraint being satisfied is equivalent to $s\geq0$. In the snippet below, you can see this in action: as you move the mouse around, the slack variable $s$ will tell you how far away the mouse location is from satisfying the constraint. When $s$ is positive, the mouse is located in a region that satisfies the constraint.<br><br>
 
@@ -156,85 +166,133 @@ As an example, in 2D, the constraint $2x+3y\leq15$ can be parametrized by using 
 
 Things get a lot more interesting when several constraints are at play. For example, consider the following inequalities in 2D<br>
 
-$2x+y \leq11$ <br>
-$x-3y \leq2$ <br>
+<script type="math/tex; mode=display">
+\begin{aligned}
+ 2x + y  &\le 11 \\
+ x - 3y  &\le 2
+\end{aligned}
+</script>
 
 Just like before, each inequality defines its own plane. Defining a slack variable for each inequality, we are able to measure how far away we are from satisfying each constraint:<br>
 
-$2x+y +s_1 = 11$<br>
-$x-3y +s_2 = 2$<br>
+<script type="math/tex; mode=display">
+\begin{aligned}
+ 2x + y + s_1 &= 11 \\
+ x - 3y + s_2 &= 2
+\end{aligned}
+</script>
 
 This can be seen in the snippet below. Click on the lines to isolate each variable.
 
 <div id="slack2"></div>
 
-Considering this is a 2D setting, setting the two slack variables to zero will yield a system of equations that provides the intersection point once solved (assuming the lines are not parallel). The solution in this case is $(x,y) =(5, 1)$. More generally, the variables $s_1$ and $s_2$ are able to describe any point in the plane - they form a (not necessarily orthogonal) <b>coordinate system</b>. Importantly, when $s_1$ and $s_2$ are non-negative, they always yield points that satisfy the corresponding inequalities! <b>Slack variables provide a convenient way to parametrize regions bounded by inequalities!</b> To do this more generally in $N$ dimensions, we just need $N$ inequalities that contain no parallel hyperplanes.
+<p>Considering this is a 2D setting, setting the two slack variables to zero will yield a system of equations that provides the intersection point once solved (assuming the lines are not parallel). The solution in this case is $(x,y) =(5, 1)$. More generally, the variables $s_1$ and $s_2$ are able to describe any point in the plane - they form a (not necessarily orthogonal) <b>coordinate system</b>. Importantly, when $s_1$ and $s_2$ are non-negative, they always yield points that satisfy the corresponding inequalities! <b>Slack variables provide a convenient way to parametrize regions bounded by inequalities!</b> To do this more generally in $N$ dimensions, we just need $N$ inequalities that contain no parallel hyperplanes.</p>
 
-<h2>2.2 Changing coordinate systems</h2>
-Now let's see how coordinate systems defined by Slack variables provide a natural way to move along edges. Consider the system of four inequalities<br>
-$y \geq 1$<br>
-$x \geq 1$<br>
-$y-x \leq 4$<br>
-$x+y \geq  3$<br>
+</section>
+
+<section class="section-block">
+<h3>Changing coordinate systems</h3>
+Now let's see how coordinate systems defined by slack variables provide a natural way to move along edges. Consider the system of four inequalities<br>
+<script type="math/tex; mode=display">
+\begin{aligned}
+ y     &\ge 1 \\
+ x     &\ge 1 \\
+ y - x &\le 4 \\
+ x + y &\ge 3
+\end{aligned}
+</script>
+
 which describes the following unbounded region in the plane. <br><br>
 
 <div id="slack3"></div>
 
 To use slack variables, start by expressing the inequalities using $\leq$ signs, so that slack variables can retain the same interpretation as before.<br>
-$-y\leq -1$<br>
-$-x \leq -1$<br>
-$y-x \leq 4$<br>
-$-x-y \leq -3$<br><br>
+<script type="math/tex; mode=display">
+\begin{aligned}
+ -y     &\le -1 \\
+ -x     &\le -1 \\
+ y - x  &\le 4 \\
+ -x - y &\le -3
+\end{aligned}
+</script>
+
 
 Let's represent the constraints using slack variables:<br>
-$-y + s_1 =-1$<br>
-$-x + s_2 = -1$<br>
-$y-x + s_{3} = 4$<br>
-$-x-y + s_{4}=  -3$<br>
+<script type="math/tex; mode=display">
+\begin{aligned}
+ -y     + s_1 &= -1 \\
+ -x     + s_2 &= -1 \\
+ y - x  + s_3 &=  4 \\
+ -x - y + s_4 &= -3
+\end{aligned}
+</script>
+
 
 It's relevant to note that, even though it's not made explicit, the cartesian variables $x$ and $y$ also act as slack variables for the implicit constraints $x\geq0$ and $y\geq0$, putting them on equal footing to every other slack variable. <br><br>
 
-Let's start by building a coordinate system out of the 1st and 4th equations. Rearranging, these equations give us the transformation law between the $(x,y)$ coordinate system and the $(s_1, s_4)$ coordinate system.<br><br>
+Let's start by building a coordinate system out of the 1st and 4th equations. Rearranging, these equations give us the transformation law between the $(x,y)$ coordinate system and the $(s_1, s_4)$ coordinate system.<br>
 
-$s_1 =y-1$<br>
-$s_{4}=x+y-3$<br>
+<script type="math/tex; mode=display">
+\begin{aligned}
+ s_1 &= y - 1 \\
+ s_4 &= x + y - 3
+\end{aligned}
+</script>
 
 and vice versa:<br>
 
-$x = s_{4}-s_{1}+2$<br>
-$y=s_{1}+1$<br>
+<script type="math/tex; mode=display">
+\begin{aligned}
+ x &= s_4 - s_1 + 2 \\
+ y &= s_1 + 1
+\end{aligned}
+</script>
 
-Setting $s_1=s_4=0$ gives us the origin of that coordinate system in the $(x,y)$ coordinate system, that is, $(x,y)=(2,1)$. To change coordinates from $(x,y)$ to $(s_1, s_4)$, express everything in terms of $s_1$ and $s_4$:<br><br>
 
-$y=s_{1}+1$<br>
-$s_2 = s_{4}-s_{1}+1$<br>
-$s_{3} = s_{4} - 2s_{1} + 5$<br>
-$x = s_{4}-s_{1}+2$<br>
+Setting $s_1=s_4=0$ reveals the origin of that coordinate system in the $(x,y)$ coordinate system, that is, $(x,y)=(2,1)$. To change coordinates from $(x,y)$ to $(s_1, s_4)$, express everything in terms of $s_1$ and $s_4$:<br>
+<script type="math/tex; mode=display">
+\begin{aligned}
+ y     &= s_1 + 1 \\
+ s_2   &= s_4 - s_1 + 1 \\
+ s_3   &= s_4 - 2s_1 + 5 \\
+ x     &= s_4 - s_1 + 2
+\end{aligned}
+</script>
 
-We have now successfully described the variables $x,y,s_2,s_3$  in terms of $s_1,s_4$. It can be seen as a <b>dictionary</b> between the basis variables (also called <b>basic variables</b>) and the non-basis (or <b>non-basic</b>) variables. Note that the origin of this new coordinate system is a boundary vertex of the feasible region and thus satisfies all the inequalities. To see this, just set $s_1=s_4=0$ in the equations above to see that all the remaining slack variables are positive, meaning that the inequalities are satisfied:<br>
+We have now successfully described the variables $x,y,s_2,s_3$  in terms of $s_1,s_4$. It can be seen as a <b>dictionary</b> between the <b>basis variables</b> (also called basic variables) and the <b>non-basis</b> (or non-basic) variables. Note that the origin of this new coordinate system is a boundary vertex of the feasible region and thus satisfies all the inequalities. To see this, just set $s_1=s_4=0$ in the equations above to see that all the remaining slack variables are positive, meaning that the inequalities are satisfied:<br>
 
-$y=1$<br>
-$s_2 = 1$<br>
-$s_{3} = 5$<br>
-$x =2$<br>
+<script type="math/tex; mode=display">
+\begin{aligned}
+ y   &= 1 \\
+ s_2 &= 1 \\
+ s_3 &= 5 \\
+ x   &= 2
+\end{aligned}
+</script>
+
 
 Visually, the region looks like this now, under the new coordinate system:
 
 <div id="slack4"></div>
+<p>Remember that the origin of this new reference frame comes from the intersection of the lines defined by $s_1=s_4=0$. </p>
 
+</section>
 
-Remember that the origin of this new reference frame comes from the intersection of the lines defined by $s_1=s_4=0$. <br><br>
-
-<h2>2.3 Moving along boundary vertices - pivoting</h2>
+<section class="section-block">
+<h3>Moving along boundary vertices - pivoting</h3>
 
 Now we can start asking the more interesting question: What if we want to move along from this vertex to the next one? How do I ensure that it's still a boundary vertex? <br><br>
 
-First, we need to reflect on what it means to move along an edge from one vertex to another. This vertex is simply the intersection of two lines (defined by $s_1, s_4$). If we move along the edge defined by $s_1$, we remain at $s_1=0$ but are allowed to modify $s_4$. Decreasing $s_4$ from that vertex would make it negative, so we need to increase it. Let's increase $s_4$ as much as we can until another slack variable (say, $s_2$) assumes the value zero. That's as far as we can go without making any other slack variable negative. Then, we know that we reached a new vertex because it results from the intersection of two lines (two slack variables zero). More so, in virtue of having moved along an edge and keeping all slack variables positive, we know that this is also a boundary vertex. Let's look back at our equations and see this in action. <br><br>
+First, we need to reflect on what it means to move along an edge from one vertex to another. This vertex is simply the intersection of two lines (defined by $s_1, s_4$). If we move along the edge defined by $s_1$, we remain at $s_1=0$ but are allowed to modify $s_4$. Decreasing $s_4$ from that vertex would make it negative, so we need to increase it. Let's increase $s_4$ as much as we can until another slack variable (say, $s_2$) assumes the value zero. That's as far as we can go without making any other slack variable negative. Then, we know that we reached a new vertex because it results from the intersection of two lines (two slack variables zero). More so, in virtue of having moved along an edge and keeping all slack variables positive, we know that this is also a boundary vertex. Let's look back at our equations and see this in action. <br>
 
-$y=s_{1}+1$<br>
-$s_2 = s_{4}-s_{1}+1$<br>
-$s_{3} = s_{4} - 2s_{1} + 5$<br>
-$x = s_{4}-s_{1}+2$<br><br>
+<script type="math/tex; mode=display">
+\begin{aligned}
+ y     &= s_1 + 1 \\
+ s_2   &= s_4 - s_1 + 1 \\
+ s_3   &= s_4 - 2s_1 + 5 \\
+ x     &= s_4 - s_1 + 2
+\end{aligned}
+</script>
 
 Starting from the coordinate system's origin ($s_1=s_4=0$), let's try to move along the $s_1$ edge while increasing $s_4$. What other slack variable can we set to zero as $s_4$ is increased? There are several options. In the snippet below, you can hover the mouse along the $s_1=0$ line and visually identify what lines it intersects. Clicking on each line toggles the corresponding slack variable, so you can see when it becomes zero. It includes $x$ and $y$ as slack variables to make it clearer that they are variables to consider.<br><br>
 
@@ -254,10 +312,15 @@ From these four options, the only one that represents a vertex inside the feasib
 
 With this exercise, we arrive at the important piece of information that the vertex defined by $s_2=s_4=0$ is a boundary vertex of the feasible region, just like the vertex defined by $s_1=s_4=0$. In order to proceed from here and find the next boundary vertices, we can simply change coordinates into the $(s_2, s_4)$ coordinate system and repeat the exact same process. Since we know that both $s_1=s_4=0$ and $s_2=s_4=0$ represent boundary vertices, we can then safely change variables from $(s_1,s_4)$ to $(s_2, s_4)$ with the guarantee that the new coordinate system is centered around a boundary vertex. Performing the change of variables:<br>
 
-$y=s_{4}-s_{2}+2$<br>
-$s_1 = s_{4}-s_{2}+1$<br>
-$s_{3} = -s_{4}+2s_{2}+3$<br>
-$x = s_{2}+1$<br>
+<script type="math/tex; mode=display">
+\begin{aligned}
+ y     &= s_4 - s_2 + 2 \\
+ s_1   &= s_4 - s_2 + 1 \\
+ s_3   &= -s_4 + 2s_2 + 3 \\
+ x     &= s_2 + 1
+\end{aligned}
+</script>
+
 It is always useful to pause and double-check that the origin of the new coordinate system is indeed a boundary vertex. Setting $s_2=s_4=0$, we get $y=2$, $s_1=1$, $s_3=3$ and $x=1$. All of the slack variables are positive, meaning all the constraints are satisfied and this is indeed a boundary vertex.<br><br>
 
 Now you might ask: Why is it so important to define everything in terms of coordinate systems? Why do we need all this machinery and perform so many changes of variables? The reason for this is that once you're in a coordinate system defined by slack variables, it is very easy to find all the vertices connected to the origin vertex. Each boundary vertex that is connected to the origin of the current coordinate system is reachable by moving along one of the basis axis. <br><br>
@@ -271,16 +334,28 @@ The following snippet shows how the systems of equations change as we pivot from
 
 <div id="pivot1"></div>
 
-This process of changing coordinates is called pivoting, and is very efficiently done with matrices, in a similar fashion to Gaussian elimination.
+<p>This process of changing coordinates is called pivoting, and is very efficiently done with matrices, using Gaussian elimination.</p>
 
-<h2>2.4 Pivoting with matrices</h2> 
-Let's again look at the original equations.<br><br>
-$-y + s_1 =-1$<br>
-$-x + s_2 = -1$<br>
-$y-x + s_{3} = 4$<br>
-$-x-y + s_{4}=  -3$<br>
+</section>
+
+<section class="section-block">
+<h2>Pivoting with matrices</h2> 
+<p>In practice, an efficient Linear Programming solver would use matrices internally, in order to make use of vectorized operations and data locality. In this section, we'll see how to express the process of pivoting explained previously using matrices.</p>
+</section>
+
+<section class="section-block">
+<h3>Matrix formulation</h3> 
+Let's again look at the original equations.<br>
+<script type="math/tex; mode=display">
+\begin{aligned}
+ -y      + s_1 &= -1 \\
+ -x      + s_2 &= -1 \\
+ y - x   + s_3 &=  4 \\
+ -x - y  + s_4 &= -3
+\end{aligned}
+</script>
 In matrix form, we have the equivalent formulation as a matrix equation
-$$ 
+<script type="math/tex; mode=display">
 \left[\begin{array}{cccccc}
 0 & -1 & 1 & 0 & 0 & 0\\
 -1 & 0 & 0 & 1 & 0 & 0\\
@@ -298,27 +373,33 @@ s_{4}
 -1\\
 4\\
 -3
-\end{array}\right) $$
+\end{array}\right)</script>
 More conveniently, considering we don't actually care about individual names of the variables and will need to operate on both sides of the equation simultaneously anyway, we can append the right-hand side to the matrix:
-$$ \left[\begin{array}{ccccccccc}
+<script type="math/tex; mode=display">
+  \left[\begin{array}{ccccccccc}
 0 & -1 & 1 & 0 & 0 & 0 & \vdots & -1\\
 -1 & 0 & 0 & 1 & 0 & 0 & \vdots & -1\\
 -1 & 1 & 0 & 0 & 1 & 0 & \vdots & 4\\
 -1 & -1 & 0 & 0 & 0 & 1 & \vdots & -3
-\end{array}\right]$$
-where separators were added to make this distinction clearer. For bookkeeping, let's keep track of the basis variables ($x$, $y$) and the dictionary relating the matrix rows to the slack variable it is defining. In this case, by order of increasing row, it is ($s_1$, $s_2$, $s_3$, $s_4$), that is row 1 represents $s_1$, row 2 represents $s_2$ and so on.
+\end{array}\right]</script>
+<p>where separators were added to make this distinction clearer. For bookkeeping, let's keep track of the basis variables ($x$, $y$) and the dictionary relating the matrix rows to the slack variable it is defining. In this case, by order of increasing row, it is ($s_1$, $s_2$, $s_3$, $s_4$), that is row 1 represents $s_1$, row 2 represents $s_2$ and so on.</p>
 
-<h3>Pivoting into other vertices</h3>
+</section>
+
+<section class="section-block">
+<h3>Moving into other vertices</h3>
 
 Right now, everything is still expressed in the $(x,y)$ coordinate system. Let's now swap out $x$ (column 1) with $s_4$  (row 4), meaning we eliminate $x$ from all the other rows, and set its coefficient in row 4 to one.
-$$\left[\begin{array}{ccccccccc}
+<script type="math/tex; mode=display">
+  \left[\begin{array}{ccccccccc}
 0 & -1 & 1 & 0 & 0 & 0 & \vdots & -1\\
 0 & 1 & 0 & 1 & 0 & -1 & \vdots & 2\\
 0 & 2 & 0 & 0 & 1 & -1 & \vdots & 7\\
 1 & 1 & 0 & 0 & 0 & -1 & \vdots & 3
-\end{array}\right]$$
+\end{array}\right]
+</script>
 The basis variables are now ($s_4$, $y$) and the dictionary is ($s_1$, $s_2$, $s_3$, $x$). This process is just Gaussian elimination, and here's a code snippet to do it:
-<pre><code class="language-clike">using Matrix = Eigen::MatrixXd;
+<pre><code class="language-cpp">using Matrix = Eigen::MatrixXd;
 
 void gaussian_elimination(Matrix& matrix, unsigned int row, unsigned int col){
     double entry = matrix(row, col);
@@ -340,19 +421,21 @@ void gaussian_elimination(Matrix& matrix, unsigned int row, unsigned int col){
 </code></pre>
 Changing coordinate systems is as simple as doing one sweep of Gaussian elimination.<br><br>
 Now do the same to eliminate $y$  in favor of $s_1$ (row 1)
-$$
+<script type="math/tex; mode=display">
 \left[\begin{array}{ccccccccc}
 0 & 1 & -1 & 0 & 0 & 0 & \vdots & 1\\
 0 & 0 & 1 & 1 & 0 & -1 & \vdots & 1\\
 0 & 0 & 2 & 0 & 1 & -1 & \vdots & 5\\
 1 & 0 & 1 & 0 & 0 & -1 & \vdots & 2
 \end{array}\right]
-$$
+</script>
 The basis variables are now ($s_4$, $s_1$) and the dictionary is ($y$, $s_2$, $s_3$, $x$). Each of these dictionary variables has coefficient one in the corresponding column. Notice how these coefficients are the only nonzero entries in those columns, meaning they are not used in any other expression except the one defining them in terms of the basis variables. <br><br>
 
-After these two pivots, we are now in the coordinate system defined by slack variables $s_1$ and $s_4$. It is really easy to obtain the coordinates of this coordinate system's origin from the matrix. We simply equate the dictionary to the right-hand side: $(y, s_2, s_3, x) = (1,1,5,2)$ and the basis to zero: $(s_1, s_4) = (0,0)$. In particular, we note that at this origin all the slack variables are non-negative ($s_1=0$, $s_2=1$, $s_3=5$, $s_4=0$), meaning we are within the feasible region; and the Cartesian coordinates (or Cartesian slack variables) are $x=2$ and $y=1$. Two of the slack variables are zero, meaning this is a boundary vertex of the feasible region, and this vertex has Cartesian coordinates $(x,y)=(2,1)$.
+<p>After these two pivots, we are now in the coordinate system defined by slack variables $s_1$ and $s_4$. It is really easy to obtain the coordinates of this coordinate system's origin from the matrix. We simply equate the dictionary to the right-hand side: $(y, s_2, s_3, x) = (1,1,5,2)$ and the basis to zero: $(s_1, s_4) = (0,0)$. In particular, we note that at this origin all the slack variables are non-negative ($s_1=0$, $s_2=1$, $s_3=5$, $s_4=0$), meaning we are within the feasible region; and the Cartesian coordinates (or Cartesian slack variables) are $x=2$ and $y=1$. Two of the slack variables are zero, meaning this is a boundary vertex of the feasible region, and this vertex has Cartesian coordinates $(x,y)=(2,1)$.</p>
+</section>
 
-<h2>Pivoting from one boundary vertex to the next</h2>
+<section class="section-block">
+<h3>Pivoting from one boundary vertex to the next</h3>
 
 Suppose now, just like in the example of the previous section, that we want to pivot away from this vertex into the next boundary vertex.<br><br>
 
@@ -366,7 +449,7 @@ $s_1$, on the other hand, has three positive numbers in its column, meaning that
   <li>In row 4 (variable $x$), the $s_1$ coefficient is $1$, and the RHS is $2$, so their ratio is $2$</li>
 </ul>
 The smallest ratio of all of this is $1$, meaning $s_2$ should be the chosen variable.  The code snippet below describes just that:
-<pre><code class="language-clike">std::optional&lt;unsigned int&gt; find_lowest_ratio_row(const Matrix& matrix, unsigned int col, unsigned int num_constraints){
+<pre><code class="language-cpp">std::optional&lt;unsigned int&gt; find_lowest_ratio_row(const Matrix& matrix, unsigned int col, unsigned int num_constraints){
     unsigned int last_col = matrix.cols()-1;
 
     std::optional&lt;double&gt; smallest_ratio = std::nullopt;
@@ -391,18 +474,21 @@ The smallest ratio of all of this is $1$, meaning $s_2$ should be the chosen var
 }</code></pre>
 
 To eliminate $s_1$ in favor of $s_2$, we just need to use the second row to eliminate all occurrences of $s_1$.
-$$
+<script type="math/tex; mode=display">
 \left[\begin{array}{ccccccccc}
 0 & 1 & 0 & 1 & 0 & -1 & \vdots & 2\\
 0 & 0 & 1 & 1 & 0 & -1 & \vdots & 1\\
 0 & 0 & 0 & -2 & 1 & -3 & \vdots & 3\\
 1 & 0 & 0 & -1 & 0 & 0 & \vdots & 1
 \end{array}\right]
-$$
+</script>
 The basis variables are now ($s_4$, $s_2$) and the dictionary is ($y$, $s_1$, $s_3$, $x$). Extracting the coordinates like before, we find $(x,y)=(1,2)$. This is the position of the next boundary vertex.<br><br>
 
 In this particular case, there was only one possible next boundary vertex because the region was unbounded from one side. However, in general, this method enables us to easily pivot from any boundary vertex to any of its neighbouring boundary vertices.
 
+</section>
+
+<section class="section-block">
 <h3>Pivoting rules</h3>
 And so we arrive at the following rules for pivoting from one boundary vertex into the next:
 <ol>
@@ -412,9 +498,9 @@ And so we arrive at the following rules for pivoting from one boundary vertex in
 This process is equivalent to moving from one boundary vertex to another along the edge defined by all other basis variables being zero except the one being swapped out.</li>
 </ol>
 
-At this point, it makes sense to define a Tableau as the combination of a matrix and the variable bookkeeping:
+At this point, it makes sense to define the Simplex Tableau as the combination of a matrix and the variable bookkeeping:
 
-<pre><code class="language-clike">using VectorI = Eigen::VectorXi;
+<pre><code class="language-cpp">using VectorI = Eigen::VectorXi;
 
 class Tableau {
     VectorI basis;
@@ -424,7 +510,7 @@ class Tableau {
 
 The process of changing coordinate systems is a method of that class:
 
-<pre><code class="language-clike">void Tableau::pivot(unsigned int var_out, unsigned int row){
+<pre><code class="language-cpp">void Tableau::pivot(unsigned int var_out, unsigned int row){
     // Gaussian elimination, plus keeping track of the change of variables
 
     gaussian_elimination(matrix, row, var_out);
@@ -436,7 +522,7 @@ The process of changing coordinate systems is a method of that class:
 }</code></pre>
 
 where index_of simply returns the index of var_out in the basis, if it exists
-<pre><code class="language-clike">std::optional&lt;unsigned int&gt; index_of(const VectorI& vector, unsigned int val){
+<pre><code class="language-cpp">std::optional&lt;unsigned int&gt; index_of(const VectorI& vector, unsigned int val){
     for(unsigned int i=0; i&lt;vector.size(); i++){
         if(vector(i) == val){
             return i;
@@ -446,7 +532,7 @@ where index_of simply returns the index of var_out in the basis, if it exists
 }</code></pre>
 
 Finally, the complete process of looking for the next boundary vertex and pivoting into it can be summarized in the following code snippet:
-<pre><code class="language-clike">bool Tableau::simplex_pivot(unsigned int var_out){
+<pre><code class="language-cpp">bool Tableau::simplex_pivot(unsigned int var_out){
 
     // Can't pivot out of a variable if it's not in the basis
     const auto basis_index = index_of(basis, var_out);
@@ -465,10 +551,13 @@ Finally, the complete process of looking for the next boundary vertex and pivoti
 }
 </code></pre>
 
-<h1>3 Solving Linear Programming problems - The Simplex method</h1>
+</section>
+
+<section class="section-block">
+<h2>The Simplex method</h2>
 Now that we know how to move along boundary vertices, let's see how this can help us find the solution to Linear Programming problems. 
 
-<h2>3.1 Steering the pivot</h2>
+<h3>Steering the pivot</h3>
 
 Suppose that given the constraints above, we are asked to maximize the expression $I=-2x-y$. There are a few possibilities:
 <ol>
@@ -482,18 +571,21 @@ Let's see what happens as we move along the edges and change coordinate systems 
 
 Coming back to the example, let's try to reach the optimal vertex. In the current coordinate system, ($s_1, s_4$), $I$ has the form $I=-2s_{4}+s_{1}-5$ and is asking us to pivot out $s_1$. As we've seen in the previous example, this leads us to replace $s_1$ by $s_2$. In this new coordinate system, $I=-s_4-s_{2}-4$. At the origin of this coordinate system (the new boundary vertex), $I=-4$. It also tells us that no matter which direction we go, the cost function cannot be improved. We have therefore arrived at the optimal vertex.
 
-<h2>3.2 Simplex Method with matrices</h2>
+</section>
+
+<section class="section-block">
+<h3>Simplex Method with matrices</h3>
 Just like before, using a tableau helps formalize this process. We just need to add an additional row, representing the coefficients of the cost function. The last column represents the value of the cost function at the origin of the current coordinate system. Here is how the complete tableau looks like in the beginning:
-$$ \left[\begin{array}{ccccccccc}
+<script type="math/tex; mode=display"> \left[\begin{array}{ccccccccc}
 0 & -1 & 1 & 0 & 0 & 0 & \vdots & -1\\
 -1 & 0 & 0 & 1 & 0 & 0 & \vdots & -1\\
 -1 & 1 & 0 & 0 & 1 & 0 & \vdots & 4\\
 -1 & -1 & 0 & 0 & 0 & 1 & \vdots & -3\\
 -2 & 1 & 0 & 0 & 0 & 0 & \vdots & 0
 \end{array}\right]
-$$
+</script>
 From here on, everything else is exactly the same as described so far, except that the last row does not represent a variable like the other rows. The largest positive coefficient of the last row represents the next variable to be pivoted out. The Simplex method is summarized as follows:
-<pre><code class="language-clike"> bool simplex(Tableau& tableau){
+<pre><code class="language-cpp"> bool simplex(Tableau& tableau){
     // Find the largest cost function element
 
     // The Simplex algorithm only works when all the rhs entries are non-negative
@@ -515,7 +607,10 @@ From here on, everything else is exactly the same as described so far, except th
 
 It is worth emphasising that pivoting only works to provide a boundary vertex <b>if the starting vertex is itself a boundary vertex</b> (this is enforced by the assertion inside the code snippet). If it were not the case, there is no guarantee we will get what we want. We must then answer the question: how do we find a starting vertex in the first place? In the previous examples, we just happened to stumble upon a boundary vertex without giving it much thought while experimenting with pivoting, but we need a systematic way to do this. This is where artificial variables come in. 
 
-<h2>3.3 Finding a boundary vertex - artificial variables</h2>
+</section>
+
+<section class="section-block">
+<h3>Finding a boundary vertex - artificial variables</h3>
 The easiest boundary vertex to find (if it exists) is the Cartesian origin. This is the default basis used when describing the problem. If, in this basis, all the slack variables are positive and have the same sign as the right-hand side, then the Cartesian origin is a boundary vertex and the Simplex algorithm can proceed. In general, though, we will not be so lucky. The trick here is to embed the geometry in a higher dimensional space, such that a boundary vertex is trivial to find. Let's see this with an example. Consider maximizing $I=x+2y$ subject to<br>
 $x\geq0$<br>
 $y\geq0$<br>
@@ -554,34 +649,34 @@ We then arrive at the following procedure:
 </ol>
 
 Coming back to our previous example, the original tableau looks like this:
-$$ 
+<script type="math/tex; mode=display">
 \left[\begin{array}{ccccccccc}
 -1 & -1 & 1 & 0 & \vdots & -3\\
  1 &  1 & 0 & 1 & \vdots & 9\\
  1 &  2 & 0 & 0 & \vdots & 0
 \end{array}\right]
-$$
+</script>
 Adding the artificial variable $z$ in its new column and the artificial cost function as a new row, we get
-$$
+<script type="math/tex; mode=display">
 \left[\begin{array}{ccccccccccc}
 -1 & -1 & \vdots & -1 & \vdots & 1 & 0 & \vdots & -3\\
 1 & 1 & \vdots & 0 & \vdots & 0 & 1 & \vdots & 9\\
 1 & 2 & \vdots & 0 & \vdots & 0 & 0 & \vdots & 0\\
 0 & 0 & \vdots & -1 & \vdots & 0 & 0 & \vdots & 0
 \end{array}\right]
-$$
+</script>
 The basis is $(x,y,z)$ and the dictionary is $(s_1, s_2)$. The tableau is set up, but we are still not at a boundary vertex. To get there and start the Simplex algorithm, we need to pivot out the artificial variables in favor of the corresponding slack variable. Remember that we do this because we know that the vertex where that slack variable (in this case $s_1$) is zero is a boundary vertex of the higher-dimensional geometry. After pivoting, we get
-$$
+<script type="math/tex; mode=display">
 \left[\begin{array}{ccccccccccc}
 1 & 1 & \vdots & 1 & \vdots & -1 & 0 & \vdots & 3\\
 1 & 1 & \vdots & 0 & \vdots & 0 & 1 & \vdots & 9\\
 1 & 2 & \vdots & 0 & \vdots & 0 & 0 & \vdots & 0\\
 1 & 1 & \vdots & 0 & \vdots & -1 & 0 & \vdots & 3
 \end{array}\right]
-$$
+</script>
 The basis is now $(x,y,s_1)$ and the dictionary is $(z, s_2)$. Glancing at the right-most column, we see that all the values corresponding to slack variables are non-negative, meaning we have pivoted into a boundary vertex. This time, it was not a fortunate accident, but the consequence of using artificial variables. The following code performs this initial set of pivots:<br>
 
-<pre><code class="language-clike">void pivot_into_feasible(Tableau& tableau){
+<pre><code class="language-cpp">void pivot_into_feasible(Tableau& tableau){
     for(unsigned int i=0; i&lt;tableau.num_artificial; i++){
         unsigned int j = i+tableau.basis_dimension-tableau.num_artificial;
         tableau.simplex_pivot(j);
@@ -590,44 +685,47 @@ The basis is now $(x,y,s_1)$ and the dictionary is $(z, s_2)$. Glancing at the r
 </code></pre>
 
 Now we can finally start the Simplex algorithm to maximize the cost function. For the first step of the Simplex algorithm, we choose the variable having the largest coefficient in the artificial cost function. In this case, either $x$ or $y$ work. Choosing $x$ as the next pivot, the row with the smallest RHS/coefficient ratio is the first one, meaning we swap $x$ with $z$.
-$$
+<script type="math/tex; mode=display">
 \left[\begin{array}{ccccccccccc}
 1 & 1 & \vdots & 1 & \vdots & -1 & 0 & \vdots & 3\\
 0 & 0 & \vdots & -1 & \vdots & 1 & 1 & \vdots & 6\\
 0 & 1 & \vdots & 0 & \vdots & 1 & 0 & \vdots & -3\\
 0 & 0 & \vdots & -1 & \vdots & 0 & 0 & \vdots & 0
 \end{array}\right]
-$$
+</script>
 The basis is now $(z,y,s_1)$ and the dictionary is $(x, s_2)$. The cost function has now reached the value zero, meaning we managed to reduce the artificial variable all the way down to zero while staying on boundary vertices. Disposing of the artificial variable, we end up with a tableau that can immediately be used to solve the original problem. The last row (representing the artificial cost function) and the $z$ column can now be discarded, leaving us with the following tableau
-$$
+<script type="math/tex; mode=display">
 \left[\begin{array}{ccccccccc}
 1 & 1 & -1 & 0 & \vdots & 3\\
 0 & 0 & 1 & 1 & \vdots & 6\\
 0 & 1 & 1 & 0 & \vdots & -3
 \end{array}\right]
-$$
+</script>
 The basis is now $(y,s_1)$ and the dictionary is $(x, s_2)$. The original cost function reads $I=y+s_1+3$. Now we apply the Simplex algorithm again, choosing to pivot $y$ in favor of $x$ (first row)
 
-$$
+<script type="math/tex; mode=display">
 \left[\begin{array}{cccccc}
 1 & 1 & -1 & 0 & \vdots & 3\\
 0 & 0 & 1 & 1 & \vdots & 6\\
 -1 & 0 & 2 & 0 & \vdots & -6
 \end{array}\right]
-$$
+</script>
 The basis is now $(x,s_1)$ and the dictionary is $(y, s_2)$. Finally, pivoting $s_1$ away in favor of $s_2$, we find 
-$$
+<script type="math/tex; mode=display">
 \left[\begin{array}{cccccc}
 1 & 1 & 0 & 1 & \vdots & 9\\
 0 & 0 & 1 & 1 & \vdots & 6\\
 -1 & 0 & 0 & -2 & \vdots & -18
 \end{array}\right]
-$$
+</script>
 The basis is now $(x,s_2)$ and the dictionary is $(y, s_1)$. The cost function reads $I=-x-s_2 + 18$. The coordinates of the origin vertex are $(x,y)=(0,9)$. All the variables' coefficients are negative in the cost function now, meaning we have reached the end of the Simplex algorithm and found the optimal vertex at $(x,y)=(0,9)$. Try it out for yourself in the interactive widget below! Just like before, clicking on lines performs a change of variables, but now you can also see what happens to the matrix. The direction of increasing cost function is represented by the red arrow.<br><br>
 
 <div id="pivot2"></div>
 
-<h1>Conclusion and additional notes</h1>
+</section>
+
+<section class="section-block">
+<h2>Conclusion and additional notes</h2>
 The Simplex Method is one of the most popular and powerful ways to solve Linear Programming problems, and one of the goals of this article was to make it more accessible to people learning about it. <br><br>
 
 For the sake of simplicity I haven't mentioned some pathological but critical cases where the rules stated are not enough to reach an optimal vertex. This happens when several different bases share one single vertex. Granted, this is not possible in 2D where I focused most of my examples, but it can and does happen in 3D. For instance, the pointy bit at the intersection of the four triangular faces of a square pyramid is one such case. <br><br>
@@ -636,7 +734,9 @@ I also did not comment on the algorithmic complexity of the Simplex algorithm. I
 
 Moving forward, I'd like to cover these and other topics related to LP (like Integer Linear Programming). For the time being, however, I thought the topics covered here were already interesting enough to be made into interactive widgets and explained from my own ideas and understanding. Looking forward to iterate on this!
 
-
+</section>
+</div>
   </body>
   <script type="module" src="/main.ts"></script>
+  
 </html>

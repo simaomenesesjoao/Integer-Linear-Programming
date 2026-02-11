@@ -1,20 +1,7 @@
 {
-  "name": "pixi_graph",
+  "name": "widgets-page",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "devDependencies": {
-    "vite": "^7.3.1"
-  },
-  "dependencies": {
-    "@simao/js-widgets": "file:../js_widgets",
+  "peerDependencies": {
     "pixi.js": "^8.16.0",
     "three": "^0.182.0"
   }

@@ -1,6 +1,6 @@
 import {Application, Graphics} from 'pixi.js';
-import {Polygon, PagePoint, WindowPoint, CoordPoint, ConstraintLine, Grid, PageToWindow, WindowToCoord, PageToCoord, CoordLimits, LineGenerator,  polygonFromConstraints} from "../utils/lp.ts";
-import {Constraint} from "../utils/simplex_cpp.ts";
+import {Polygon, PagePoint, WindowPoint, CoordPoint, ConstraintLine, Grid, PageToWindow, WindowToCoord, PageToCoord, CoordLimits, LineGenerator,  polygonFromConstraints} from "../../utils/lp.ts";
+import {Constraint} from "../../utils/simplex_cpp.ts";
 
 export interface InterfaceR {
   container: HTMLElement;
