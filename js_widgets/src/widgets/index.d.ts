@@ -20,6 +20,7 @@ export interface InterfaceP {
   constraints: Constraint[];
   costFunction?: number[];
   showMatrix: boolean;
+  showCoords: boolean;
   topRightCoord: { x: number; y: number };
   botLeftCoord: { x: number; y: number };
 }

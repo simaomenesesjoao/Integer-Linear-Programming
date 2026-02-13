@@ -10,6 +10,7 @@ export interface InterfaceP {
   constraints: Constraint[];
   costFunction: number[] | undefined;
   showMatrix: boolean;
+  showCoords: boolean;
   topRightCoord: {x: number, y: number};
   botLeftCoord: {x: number, y: number};
 };
@@ -23,10 +24,11 @@ export class PivotSnippet {
   constraints: Constraint[];
   costFunction: number[] | undefined;
   showMatrix: boolean;
+  showCoords: boolean;
   topRightCoord: {x: number, y: number};
   botLeftCoord: {x: number, y: number};
 
-  constructor({container, width, height, app_width, constraints, costFunction, showMatrix, topRightCoord, botLeftCoord}: InterfaceP) {
+  constructor({container, width, height, app_width, constraints, costFunction, showMatrix, showCoords, topRightCoord, botLeftCoord}: InterfaceP) {
     this.container = container;
     this.width = width;
     this.height = height;
@@ -34,6 +36,7 @@ export class PivotSnippet {
     this.constraints = constraints;
     this.costFunction = costFunction;
     this.showMatrix = showMatrix;
+    this.showCoords = showCoords;
     this.topRightCoord = topRightCoord;
     this.botLeftCoord = botLeftCoord;
     this.app = new Application();
@@ -128,11 +131,13 @@ export class PivotSnippet {
     }
     
 
-    this.app.stage.addChild(...tableauToText.dictionaryTexts);
-    this.app.stage.addChild(tableauToText.costText);
-    this.app.stage.addChild(tableauToText.descriptionText);
-    this.app.stage.addChild(tableauToText.warningText);
-    this.app.stage.addChild(tableauToText.titleText);
+    if(this.showCoords){
+        this.app.stage.addChild(...tableauToText.dictionaryTexts);
+        this.app.stage.addChild(tableauToText.costText);
+        this.app.stage.addChild(tableauToText.descriptionText);
+        this.app.stage.addChild(tableauToText.warningText);
+        this.app.stage.addChild(tableauToText.titleText);
+    }
     
     tableauToText.pos(new WindowPoint(this.app_width + 50, 50));
 
