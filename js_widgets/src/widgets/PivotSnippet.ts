@@ -1,6 +1,6 @@
 import {Application, Graphics} from 'pixi.js';
-import {Arrow, LineManager, PagePoint, WindowPoint, CoordPoint, ConstraintLine, Grid, PageToWindow, WindowToCoord, PageToCoord, OrthogonalArrow, CoordLimits, LineGenerator, TableauToText, polygonFromConstraints, MatrixView} from "../../utils/lp.ts";
-import {Constraint} from "../../utils/simplex_cpp.ts";
+import {Arrow, LineManager, PagePoint, WindowPoint, CoordPoint, ConstraintLine, Grid, PageToWindow, WindowToCoord, PageToCoord, OrthogonalArrow, CoordLimits, LineGenerator, TableauToText2, polygonFromConstraints, MatrixView2} from "../../utils/lp";
+import {Constraint} from "../../utils/simplex_cpp";
 
 export interface InterfaceP {
   container: HTMLElement;
@@ -9,14 +9,16 @@ export interface InterfaceP {
   app_width: number;
   constraints: Constraint[];
   costFunction: number[] | undefined;
-  showMatrix: boolean;
-  showCoords: boolean;
+  showMatrix: HTMLElement | null;
+  showCoords: HTMLElement | null;
   topRightCoord: {x: number, y: number};
   botLeftCoord: {x: number, y: number};
 };
 
 export class PivotSnippet {
   container: HTMLElement;
+  matrixContainer: HTMLElement;
+  coordinatesContainer: HTMLElement;
   private app: Application;
   width: number;
   height: number;
@@ -35,11 +37,13 @@ export class PivotSnippet {
     this.app_width = app_width;
     this.constraints = constraints;
     this.costFunction = costFunction;
-    this.showMatrix = showMatrix;
-    this.showCoords = showCoords;
+    this.showMatrix = showMatrix? true: false;
+    this.showCoords = showCoords? true: false;
     this.topRightCoord = topRightCoord;
     this.botLeftCoord = botLeftCoord;
     this.app = new Application();
+    this.matrixContainer = showMatrix ? showMatrix! : container;    
+    this.coordinatesContainer = showCoords ? showCoords! : container;
   }
 
   async init() {
@@ -49,6 +53,7 @@ export class PivotSnippet {
       backgroundAlpha: 0,
       antialias: true,
     });
+
     this.container.appendChild(this.app.canvas);
 
     // Position of the window in absolute coordinates
@@ -112,6 +117,7 @@ export class PivotSnippet {
     if(this.costFunction !== undefined){
         cost = new CoordPoint(this.costFunction[0], this.costFunction[1]);
     }
+
     console.log("PivotSpinnet: ", cost);
     const costArrow = new Arrow(cost, page_to_coord);
     this.app.stage.addChild(costArrow);
@@ -120,26 +126,28 @@ export class PivotSnippet {
     const arrows: OrthogonalArrow[] = lineGenerator.getArrows();
     const lineManager: LineManager = lineGenerator.getManager(this.costFunction);
 
-    const tableauToText = new TableauToText(lineManager.tableau.num_constraints, lineManager.labelToId, lineManager.idToLabel, page_to_window);
+    // const tableauToText = new TableauToText(lineManager.tableau.num_constraints, lineManager.labelToId, lineManager.idToLabel, page_to_window);
+
+    const tableauToText = new TableauToText2(this.coordinatesContainer, lineManager.tableau.num_constraints, lineManager.idToLabel);
 
 
-    const matrixView = new MatrixView();
+    const matrixView = new MatrixView2(this.matrixContainer);
+
     if(this.showMatrix){
         matrixView.draw(lineManager.tableau.matrix, {fontSize: 20 });
-        matrixView.position = {x: 600, y:100};
-        this.app.stage.addChild(matrixView);
+        // matrixView.position = {x: 600, y:100};
+        // this.app.stage.addChild(matrixView);
     }
-    
 
-    if(this.showCoords){
-        this.app.stage.addChild(...tableauToText.dictionaryTexts);
-        this.app.stage.addChild(tableauToText.costText);
-        this.app.stage.addChild(tableauToText.descriptionText);
-        this.app.stage.addChild(tableauToText.warningText);
-        this.app.stage.addChild(tableauToText.titleText);
-    }
+    // if(this.showCoords){
+    //     this.app.stage.addChild(...tableauToText.dictionaryTexts);
+    //     this.app.stage.addChild(tableauToText.costText);
+    //     this.app.stage.addChild(tableauToText.descriptionText);
+    //     this.app.stage.addChild(tableauToText.warningText);
+    //     this.app.stage.addChild(tableauToText.titleText);
+    // }
     
-    tableauToText.pos(new WindowPoint(this.app_width + 50, 50));
+    // tableauToText.pos(new WindowPoint(this.app_width + 50, 50));
 
     for(const line of lines){
         this.app.stage.addChild(line.visual);
@@ -198,12 +206,9 @@ export class PivotSnippet {
         tableauToText.update(lineManager.tableau);
         tableauToText.resetWarning();
 
-
         if(this.showMatrix){
             matrixView.draw(lineManager.tableau.matrix, {fontSize: 20 });
         }
-        
-
     };
 
     lineManager.onWarning = () => {
@@ -226,7 +231,6 @@ export class PivotSnippet {
         costArrow.update(coordWorld);
 
     });
-
 
   }
 

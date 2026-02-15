@@ -1,6 +1,6 @@
 import { init3D, Constraint, PivotSnippet, SlackSnippet} from '@simao/js-widgets'; 
 
-export async function initPivot1(id: string) {
+export async function initPivot1(id: string, id2: string) {
     const constraints: Constraint[] = [];
     constraints.push(new Constraint({lower: 0, a:  1.0, b: 0.0, upper: undefined, label: "x"}));
     constraints.push(new Constraint({lower: 0, a:  0.0, b: 1.0, upper: undefined, label: "y"}));
@@ -10,13 +10,13 @@ export async function initPivot1(id: string) {
 
     const snippet = new PivotSnippet({
         container: document.getElementById(id)!,
-        width: 800,
-        height: 330,
+        width: 300,
+        height: 300,
         app_width: 300,
         constraints: constraints,
         costFunction: undefined,
-        showMatrix: false,
-        showCoords: true,
+        showMatrix: null,
+        showCoords: document.getElementById(id2),
         topRightCoord: {x: 8.0, y: 8.0},
         botLeftCoord: {x: -1.0, y: -1.0}
     });
@@ -25,31 +25,7 @@ export async function initPivot1(id: string) {
     return { constraints, snippet };
 }
 
-export async function initPivot2(id: string) {
-    const constraints: Constraint[] = [];
-    constraints.push(new Constraint({lower: 0, a:  1.0, b: 0.0, upper: undefined, label: "x"}));
-    constraints.push(new Constraint({lower: 0, a:  0.0, b: 1.0, upper: undefined, label: "y"}));
-    constraints.push(new Constraint({lower: 3.0, a: 1.0, b: 1.0, upper: undefined, label: "s₁"}));
-    constraints.push(new Constraint({lower: undefined, a: 1.0, b: 1.0, upper: 9.0, label: "s₂"}));
-
-    const snippet = new PivotSnippet({
-        container: document.getElementById(id)!,
-        width: 800,
-        height: 330,
-        app_width: 300,
-        constraints: constraints, 
-        costFunction: [1.0, 2.0],
-        showMatrix: true,
-        showCoords: true,
-        topRightCoord: {x: 10.0, y: 10.0},
-        botLeftCoord: {x: -1.0, y: -1.0}
-    });
-
-    await snippet.init();
-    return { constraints, snippet };
-}
-
-export async function initPivot3(id: string) {
+export async function initPivot2(id: string, id2: string, id3: string) {
     const constraints: Constraint[] = [];
     constraints.push(new Constraint({lower: 0, a:  1.0, b: 0.0, upper: undefined, label: "x"}));
     constraints.push(new Constraint({lower: 0, a:  0.0, b: 1.0, upper: undefined, label: "y"}));
@@ -63,8 +39,8 @@ export async function initPivot3(id: string) {
         app_width: 300,
         constraints: constraints, 
         costFunction: [1.0, 2.0],
-        showMatrix: false,
-        showCoords: false,
+        showMatrix: document.getElementById(id2),
+        showCoords: document.getElementById(id3),
         topRightCoord: {x: 10.0, y: 10.0},
         botLeftCoord: {x: -1.0, y: -1.0}
     });
@@ -72,6 +48,30 @@ export async function initPivot3(id: string) {
     await snippet.init();
     return { constraints, snippet };
 }
+
+// export async function initPivot3(id: string) {
+//     const constraints: Constraint[] = [];
+//     constraints.push(new Constraint({lower: 0, a:  1.0, b: 0.0, upper: undefined, label: "x"}));
+//     constraints.push(new Constraint({lower: 0, a:  0.0, b: 1.0, upper: undefined, label: "y"}));
+//     constraints.push(new Constraint({lower: 3.0, a: 1.0, b: 1.0, upper: undefined, label: "s₁"}));
+//     constraints.push(new Constraint({lower: undefined, a: 1.0, b: 1.0, upper: 9.0, label: "s₂"}));
+
+//     const snippet = new PivotSnippet({
+//         container: document.getElementById(id)!,
+//         width: 300,
+//         height: 300,
+//         app_width: 300,
+//         constraints: constraints, 
+//         costFunction: [1.0, 2.0],
+//         showMatrix: null,
+//         showCoords: null,
+//         topRightCoord: {x: 10.0, y: 10.0},
+//         botLeftCoord: {x: -1.0, y: -1.0}
+//     });
+
+//     await snippet.init();
+//     return { constraints, snippet };
+// }
 
 export async function initRegion1(id: string) {
     const constraints = [];
@@ -266,9 +266,9 @@ export async function initSlack5(id: string) {
 }
 
 export function init(){
-    initPivot1("pivot1");
-    initPivot2("pivot2");
-    initPivot3("pivot3");
+    initPivot1("pivot1", "pivot1aux");
+    initPivot2("pivot2", "pivot2aux", "pivot2aux2");
+    // initPivot3("pivot3");
     initRegion1("region1");
     initRegion2("region2");
     initRegion3("region3");
@@ -281,6 +281,6 @@ export function init(){
     init3D('three-container', canvas);
 }
 
-// document.addEventListener('DOMContentLoaded', () => {
-//     init();
-// });
+document.addEventListener('DOMContentLoaded', () => {
+    init();
+});

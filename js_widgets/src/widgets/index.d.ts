@@ -19,8 +19,8 @@ export interface InterfaceP {
   app_width: number;
   constraints: Constraint[];
   costFunction?: number[];
-  showMatrix: boolean;
-  showCoords: boolean;
+  showMatrix: HTMLElement | null;
+  showCoords: HTMLElement | null;
   topRightCoord: { x: number; y: number };
   botLeftCoord: { x: number; y: number };
 }

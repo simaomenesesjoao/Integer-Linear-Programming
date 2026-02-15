@@ -148,7 +148,7 @@ export class SimplexTableau {
      * col is with respect to variables[] (not RHS)
      */
     pivot(pivotRow: number, pivotCol: number) {
-        console.log("pivot: ", pivotRow, pivotCol);
+        // console.log("pivot: ", pivotRow, pivotCol);
 
         if (pivotCol === this.rhsCol) {
             throw new Error("Cannot pivot on RHS column");

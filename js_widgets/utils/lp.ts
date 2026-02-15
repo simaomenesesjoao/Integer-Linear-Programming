@@ -264,8 +264,6 @@ export class Grid extends Graphics {
         let ny_start_close: boolean = Math.abs(Math.round(y1/delta) - y1/delta) < tol;
         let ny_end_close:   boolean = Math.abs(Math.round(y2/delta) - y2/delta) < tol;
 
-        console.log("GRID", nx_start, nx_end, nx_start_close, nx_end_close);
-
         for(let n: number = ny_start; n <= ny_end; n++){
 
             if(n == ny_start && ny_start_close){
@@ -279,8 +277,6 @@ export class Grid extends Graphics {
 
             const p1 = this.converter.to_page(new CoordPoint(x1, y));
             const p2 = this.converter.to_page(new CoordPoint(x2, y));
-            
-            // console.log(p1, p2);
 
             this.moveTo(Math.trunc(p1.x), Math.trunc(p1.y));
             this.lineTo(Math.trunc(p2.x), Math.trunc(p2.y));
@@ -305,8 +301,6 @@ export class Grid extends Graphics {
             const p1 = this.converter.to_page(new CoordPoint(x, y1));
             const p2 = this.converter.to_page(new CoordPoint(x, y2));
             
-            // console.log(p1, p2);
-
             this.moveTo(p1.x, p1.y);
             this.lineTo(p2.x, p2.y);
             this.stroke({
@@ -367,10 +361,10 @@ export class Arrow extends Graphics {
 
     update(mousePosition: CoordPoint) {
         if(!this.visible){
-            console.log("Arrow not update!");
+            // console.log("Arrow not update!");
             return;
         }
-        console.log("Arrow update!");
+        // console.log("Arrow update!");
         this.draw(mousePosition);
     };
 
@@ -720,7 +714,7 @@ export class LineManager {
         
         this.linesStatus[0] = true;
         this.linesStatus[1] = true;
-        console.log("LInesStatus: " , this.linesStatus);
+        // console.log("LInesStatus: " , this.linesStatus);
         
         this.items.count = 2;
         this.items.oldest = 0;
@@ -734,7 +728,7 @@ export class LineManager {
                 active.push(n);
             }
         }
-        console.log("active: ", active);
+        // console.log("active: ", active);
         return active;
     }
 
@@ -746,7 +740,7 @@ export class LineManager {
                 inactive.push(n);
             }
         }
-        console.log("inactive: ", inactive);
+        // console.log("inactive: ", inactive);
         return inactive;
     }
 
@@ -755,24 +749,24 @@ export class LineManager {
         const id: number = this.labelToId.get(clickedLineLabel)!;
         // const dequeCopy = structuredClone(this.deque);
         let items = this.items;
-        console.log("onUpdate: labelToId ", this.labelToId);
-        console.log("onUpdate: clickedLineLabel ", clickedLineLabel);
-        console.log("onUpdate: numLines ", this.numLines);
-        console.log("onUpdate: items ", items);
-        console.log("onUpdate: id ", id);
+        // console.log("onUpdate: labelToId ", this.labelToId);
+        // console.log("onUpdate: clickedLineLabel ", clickedLineLabel);
+        // console.log("onUpdate: numLines ", this.numLines);
+        // console.log("onUpdate: items ", items);
+        // console.log("onUpdate: id ", id);
         
         // If the line was not previously active, try to add it to the deque
         if(!wasActive){
-            console.log("onUpdate: line was inactive");
+            // console.log("onUpdate: line was inactive");
 
             // If two lines are already active, one of them needs to be evicted
             // The oldest one should be evicted, unless it's not possible
             if(items.count === 2){
-                console.log("onUpdate: there are currently two lines");
+                // console.log("onUpdate: there are currently two lines");
 
                 // Try to evict the oldest
                 if(this.tableau.canPivot(id, items.oldest!)){
-                    console.log("onUpdate: pivot the oldest");
+                    // console.log("onUpdate: pivot the oldest");
                     this.tableau.pivotVar(id, items.oldest!);
 
                     this.linesStatus[id] = true;
@@ -783,7 +777,7 @@ export class LineManager {
 
                 // Try to evict the newest
                 } else if(this.tableau.canPivot(id, items.newest!)){
-                    console.log("onUpdate: pivot the newest");
+                    // console.log("onUpdate: pivot the newest");
                     this.tableau.pivotVar(id, items.newest!);
 
                     this.linesStatus[id] = true;
@@ -793,7 +787,7 @@ export class LineManager {
                 
                 // Change nothing
                 } else {
-                    console.log("onUpdate: no pivot");
+                    // console.log("onUpdate: no pivot");
                     pivotPossible = false;
                 }
             }
@@ -802,13 +796,13 @@ export class LineManager {
             // We need to pivot into these two simultaneously, starting from
             // a blank slate
             else if(items.count === 1){
-                console.log("onUpdate: there is currently one line");
+                // console.log("onUpdate: there is currently one line");
 
                 this.tableau = this.origTableau.clone();
-                console.log("Current tableau");
+                // console.log("Current tableau");
                 this.tableau.print();
                 const item = (items.newest ?? items.oldest)!;
-                console.log("onUpdate: item", item);
+                // console.log("onUpdate: item", item);
 
                 let success1 = true;
                 let success2 = true;
@@ -826,7 +820,7 @@ export class LineManager {
                 } else {
                     success1 = false;
                 }
-                console.log("onUpdate: first success? ", success1);
+                // console.log("onUpdate: first success? ", success1);
 
                 if(!success1 && this.tableau.canPivot(id, 1)){
                     this.tableau.pivotVar(id, 1);
@@ -842,7 +836,7 @@ export class LineManager {
                 } else {
                     success2 = false;
                 }
-                console.log("onUpdate: second success? ", success2);
+                // console.log("onUpdate: second success? ", success2);
 
                 if(!success1 && !success2){
                     pivotPossible = false;
@@ -857,7 +851,7 @@ export class LineManager {
 
             // There are no active lines yet, but there will be one now
             } else {
-                console.log("onUpdate: there is currently no line");
+                // console.log("onUpdate: there is currently no line");
                 this.linesStatus[id] = true;
                 items.newest = id;
                 items.count++;
@@ -867,19 +861,173 @@ export class LineManager {
             
         // If the line was active before, remove it from the deque
         } else {
-            console.log("onUpdate: line was active");
+            // console.log("onUpdate: line was active");
             this.items.remove(id);
             this.linesStatus[id] = false;
             this.onUpdate?.();
         }
 
         if(pivotPossible){
-            console.log("onUpdate: pivot was possible");
+            // console.log("onUpdate: pivot was possible");
             this.onUpdate?.();
         }
         this.tableau.print();
     }
 }
+
+export class TableauToText2 {
+
+  private container: HTMLElement;
+  private dictionaryContainer: HTMLElement;
+  private costContainer: HTMLElement;
+  private descriptionText: HTMLElement;
+  private warningText: HTMLElement;
+  private titleText: HTMLElement;
+
+  private idToLabel: Map<number, String>;
+  private numSlacks: number;
+
+  constructor(
+    container: HTMLElement,
+    numSlacks: number,
+    idToLabel: Map<number, String>
+  ) {
+    this.container = container;
+    this.numSlacks = numSlacks;
+    this.idToLabel = idToLabel;
+
+    // Build structure
+    this.container.classList.add("tableau");
+
+    this.titleText = document.createElement("h2");
+    this.titleText.textContent = "Coordinate System";
+
+    this.descriptionText = document.createElement("div");
+    this.descriptionText.className = "description";
+
+    this.dictionaryContainer = document.createElement("div");
+    this.dictionaryContainer.className = "dictionary";
+
+    this.costContainer = document.createElement("div");
+    this.costContainer.className = "cost";
+
+    this.warningText = document.createElement("div");
+    this.warningText.className = "warning";
+
+    this.container.append(
+      this.titleText,
+      this.descriptionText,
+      this.dictionaryContainer,
+      this.costContainer,
+      this.warningText
+    );
+  }
+
+  setWarning() {
+    this.warningText.textContent = "Cannot use parallel lines as basis!";
+  }
+
+  resetWarning() {
+    this.warningText.textContent = "";
+  }
+
+  update(tableau: SimplexTableau) {
+    const A = tableau.matrix;
+    const basis = tableau.basis;
+    const dictionary = tableau.dictionary;
+    const bCol = tableau.rhsCol;
+    const nSlacks = tableau.num_constraints;
+
+    // Clear dictionary
+    this.dictionaryContainer.innerHTML = "";
+
+    for (let i = 0; i < nSlacks; i++) {
+      const dicVar = dictionary[i];
+      const dicLab = this.idToLabel.get(dicVar);
+
+      const pivot = A[i][dicVar];
+      const psign = pivot > 0 ? 1 : -1;
+      const rhs = (psign * A[i][bCol]).toFixed(1);
+
+      const row = document.createElement("div");
+      row.className = "row";
+
+      row.append(`${dicLab} = ${rhs}`);
+
+      for (const baseVar of basis) {
+        const baseLab = this.idToLabel.get(baseVar);
+        const c = -A[i][baseVar] * psign;
+        if (Math.abs(c) < tol) continue;
+
+        const sign = c > 0 ? "+" : "-";
+        const mag = Math.abs(c);
+        const coeff = Math.abs(mag - 1) < tol ? "" : mag.toFixed(1);
+
+        row.append(` ${sign} ${coeff}`);
+
+        const span = document.createElement("span");
+        span.className = "highlight";
+        span.textContent = baseLab!;
+        row.append(span);
+      }
+
+      this.dictionaryContainer.appendChild(row);
+    }
+
+    this.updateCostFunction(tableau);
+
+    // Update description
+    const basisVars = basis.map(v => this.idToLabel.get(v));
+    const dicVars = dictionary.map(v => this.idToLabel.get(v));
+
+    this.descriptionText.innerHTML =
+      `Basis variables: ${basisVars.join(", ")}<br>` +
+      `Dictionary variables: ${dicVars.join(", ")}`;
+  }
+
+  private updateCostFunction(tableau: SimplexTableau) {
+    const A = tableau.matrix;
+    const basis = tableau.basis;
+    const bCol = tableau.rhsCol;
+    const nSlacks = tableau.num_constraints;
+
+    this.costContainer.innerHTML = "";
+
+    let sum = 0;
+    for (const b of basis) {
+      sum += Math.abs(A[nSlacks][b]);
+    }
+    if (sum < tol) return;
+
+    const cost = -(A[nSlacks][bCol]).toFixed(1);
+
+    const row = document.createElement("div");
+    row.className = "row";
+
+    row.append(`Cost = ${cost}`);
+
+    for (const baseVar of basis) {
+      const baseLab = this.idToLabel.get(baseVar);
+      const c = A[nSlacks][baseVar];
+      if (Math.abs(c) < tol) continue;
+
+      const sign = c > 0 ? "+" : "-";
+      const mag = Math.abs(c);
+      const coeff = Math.abs(mag - 1) < tol ? "" : mag.toFixed(1);
+
+      row.append(` ${sign} ${coeff}`);
+
+      const span = document.createElement("span");
+      span.className = "highlight";
+      span.textContent = baseLab!;
+      row.append(span);
+    }
+
+    this.costContainer.appendChild(row);
+  }
+}
+
+
 
 export class TableauToText {
     dictionaryTexts: Text[] = [];
@@ -1174,7 +1322,7 @@ export class LineGenerator {
 
         this.labelDictionary.set(constraint.label, this.constraints.length);
 
-        console.log("constraint ", constraint);
+        // console.log("constraint ", constraint);
         const eq = ConstraintToEq(constraint);
         const label: String = constraint.label;
         
@@ -1226,14 +1374,14 @@ export class LineGenerator {
 
         const nonBasisConstraints: Constraint[] = [];
         for(const c of this.constraints){
-            console.log("getManager: ", c.label);
+            // console.log("getManager: ", c.label);
             if(c.label === "x" || c.label === "y"){
                 continue;
             }
             nonBasisConstraints.push(c);
         }
 
-        console.log("getManager: ", nonBasisConstraints);
+        // console.log("getManager: ", nonBasisConstraints);
         this.linesFinalized = true;
 
         if(costFunction === undefined){
@@ -1241,7 +1389,7 @@ export class LineGenerator {
         }
         
         const tableau = build_tableau(nonBasisConstraints, costFunction, false);
-        console.log("getManager: ", tableau);
+        // console.log("getManager: ", tableau);
         
         return new LineManager(tableau, this.labelDictionary);
     }
@@ -1289,22 +1437,22 @@ export function polygonFromConstraints(constraints: Constraint[], limits: CoordL
     visited[old] = true;
     
     for(let i=0; i<99; i++){
-        console.log("basis:", tableau2.basis);
-        console.log("dict:", tableau2.dictionary);
-        console.log("old, rec: ", old, recent);
+        // console.log("basis:", tableau2.basis);
+        // console.log("dict:", tableau2.dictionary);
+        // console.log("old, rec: ", old, recent);
         let temp = tableau2.simplex_pivot(old)!;
         old = recent;
         recent = temp;
 
         const c = tableau2.extract_coordinates();
         vertices.push(new CoordPoint(c[0], c[1]));
-        console.log(c);
+        // console.log(c);
         if(visited[old]){
             break;
         }
         visited[old] = true;
     }
-    console.log(vertices);
+    // console.log(vertices);
     return vertices;
 }
 
@@ -1351,95 +1499,144 @@ export class Polygon extends Graphics {
 }
 
 
-export class MatrixView extends Container {
+// export class MatrixView extends Container {
     
-  draw(matrix: number[][], options = {}) {
-  this.removeChildren(0, this.children.length, true);
+//   draw(matrix: number[][], options = {}) {
+//   this.removeChildren(0, this.children.length, true);
 
-  const {
-    fontSize = 20,
-    cellPadding = 5,
-    fontFamily = "Courier New",
-    color = 0x000000,
-  } = options;
+//   const {
+//     fontSize = 20,
+//     cellPadding = 5,
+//     fontFamily = "Courier New",
+//     color = 0x000000,
+//   } = options;
 
-  const rows = matrix.length - 1;
-  const cols = matrix[0].length;
+//   const rows = matrix.length - 1;
+//   const cols = matrix[0].length;
 
-  const textStyle = new TextStyle({
-    fontFamily,
-    fontSize,
-    fill: color,
-  });
+//   const textStyle = new TextStyle({
+//     fontFamily,
+//     fontSize,
+//     fill: color,
+//   });
 
-  // --- 1️⃣ Measure column widths ---
-  const columnWidths: number[] = new Array(cols).fill(0);
+//   // --- 1️⃣ Measure column widths ---
+//   const columnWidths: number[] = new Array(cols).fill(0);
 
-  for (let j = 0; j < cols; j++) {
+//   for (let j = 0; j < cols; j++) {
+//     for (let i = 0; i < rows; i++) {
+//       const t = new Text(String(matrix[i][j]), textStyle);
+//       columnWidths[j] = Math.max(columnWidths[j], t.width);
+//       t.destroy();
+//     }
+//     columnWidths[j] += cellPadding * 2;
+//   }
+
+//   const sample = new Text("0", textStyle);
+//   const cellHeight = sample.height + cellPadding * 1.5;
+//   sample.destroy();
+
+//   const colX: number[] = [];
+//   let xCursor = 0;
+
+//   for (let j = 0; j < cols; j++) {
+//     colX[j] = xCursor;
+//     xCursor += columnWidths[j];
+//   }
+
+//   for (let i = 0; i < rows; i++) {
+//     for (let j = 0; j < cols; j++) {
+//       const text = new Text(String(matrix[i][j]), textStyle);
+//       text.anchor.set(0.5);
+
+//       text.x = colX[j] + columnWidths[j] / 2;
+//       text.y = i * cellHeight + cellHeight / 2;
+
+//       this.addChild(text);
+//     }
+//   }
+
+//   // --- 5️⃣ Draw brackets ---
+//   const g = new Graphics();
+
+//   const height = rows * cellHeight;
+//   const width = xCursor;
+
+//   const bracketOffset = 6;
+//   const xOffset = -4;
+//   const yOffset = 2;
+
+//   // LEFT bracket
+//   g.moveTo(xOffset + bracketOffset, -yOffset);
+//   g.lineTo(xOffset, -yOffset);
+//   g.lineTo(xOffset, height + yOffset);
+//   g.lineTo(xOffset + bracketOffset, height + yOffset);
+
+//   // RIGHT bracket
+//   g.moveTo(-xOffset + width - bracketOffset, -yOffset);
+//   g.lineTo(-xOffset + width, -yOffset);
+//   g.lineTo(-xOffset + width, height + yOffset);
+//   g.lineTo(-xOffset + width - bracketOffset, height + yOffset);
+
+//   g.stroke({
+//     width: 1,
+//     color,
+//     alpha: 1,
+//   });
+
+//   this.addChild(g);
+// };
+// }
+
+export class MatrixView2 {
+
+  private container: HTMLElement;
+
+  constructor(container: HTMLElement) {
+    this.container = container;
+  }
+
+  draw(matrix: number[][], options: {
+    fontSize?: number;
+    fontFamily?: string;
+    color?: string;
+  } = {}) {
+    const {
+      fontSize = 20,
+      fontFamily = "Courier New",
+      color = "#000000"
+    } = options;
+
+    // Clear previous content
+    this.container.innerHTML = "";
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "matrix-wrapper";
+
+    const table = document.createElement("table");
+    table.className = "matrix-table";
+    table.style.fontSize = `${fontSize}px`;
+    table.style.fontFamily = fontFamily;
+    table.style.color = color;
+
+    // Ignore last row like original code
+    const rows = matrix.length - 1;
+
     for (let i = 0; i < rows; i++) {
-      const t = new Text(String(matrix[i][j]), textStyle);
-      columnWidths[j] = Math.max(columnWidths[j], t.width);
-      t.destroy();
+      const tr = document.createElement("tr");
+
+      for (let j = 0; j < matrix[i].length; j++) {
+        const td = document.createElement("td");
+        td.textContent = String(matrix[i][j]);
+        tr.appendChild(td);
+      }
+
+      table.appendChild(tr);
     }
-    columnWidths[j] += cellPadding * 2;
+
+    wrapper.appendChild(table);
+    this.container.appendChild(wrapper);
   }
-
-  // --- 2️⃣ Row height (uniform, LaTeX-style) ---
-  const sample = new Text("0", textStyle);
-  const cellHeight = sample.height + cellPadding * 1.5;
-  sample.destroy();
-
-  // --- 3️⃣ Precompute x offsets ---
-  const colX: number[] = [];
-  let xCursor = 0;
-
-  for (let j = 0; j < cols; j++) {
-    colX[j] = xCursor;
-    xCursor += columnWidths[j];
-  }
-
-  // --- 4️⃣ Draw numbers ---
-  for (let i = 0; i < rows; i++) {
-    for (let j = 0; j < cols; j++) {
-      const text = new Text(String(matrix[i][j]), textStyle);
-      text.anchor.set(0.5);
-
-      text.x = colX[j] + columnWidths[j] / 2;
-      text.y = i * cellHeight + cellHeight / 2;
-
-      this.addChild(text);
-    }
-  }
-
-  // --- 5️⃣ Draw brackets ---
-  const g = new Graphics();
-
-  const height = rows * cellHeight;
-  const width = xCursor;
-
-  const bracketOffset = 6;
-  const xOffset = -4;
-  const yOffset = 2;
-
-  // LEFT bracket
-  g.moveTo(xOffset + bracketOffset, -yOffset);
-  g.lineTo(xOffset, -yOffset);
-  g.lineTo(xOffset, height + yOffset);
-  g.lineTo(xOffset + bracketOffset, height + yOffset);
-
-  // RIGHT bracket
-  g.moveTo(-xOffset + width - bracketOffset, -yOffset);
-  g.lineTo(-xOffset + width, -yOffset);
-  g.lineTo(-xOffset + width, height + yOffset);
-  g.lineTo(-xOffset + width - bracketOffset, height + yOffset);
-
-  g.stroke({
-    width: 1,
-    color,
-    alpha: 1,
-  });
-
-  this.addChild(g);
 }
 
-}
+

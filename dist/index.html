@@ -5,7 +5,7 @@
     <!-- <link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.min.css" rel="stylesheet" /> -->
     <!-- <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.min.js"></script> -->
     
-
+    <link rel="stylesheet" href="main.css">
 
     <title>Linear Programming - Simplex</title>
 
@@ -333,6 +333,7 @@ Thus, we arrive at the following prescription to move from one boundary vertex t
 The following snippet shows how the systems of equations change as we pivot from one vertex to the other. Click on a non-highlighted line to use the corresponding slack variable for the new basis.
 
 <div id="pivot1"></div>
+<div id="pivot1aux"></div>
 
 <p>This process of changing coordinates is called pivoting, and is very efficiently done with matrices, using Gaussian elimination.</p>
 
@@ -720,9 +721,12 @@ The basis is now $(x,s_1)$ and the dictionary is $(y, s_2)$. Finally, pivoting $
 </script>
 The basis is now $(x,s_2)$ and the dictionary is $(y, s_1)$. The cost function reads $I=-x-s_2 + 18$. The coordinates of the origin vertex are $(x,y)=(0,9)$. All the variables' coefficients are negative in the cost function now, meaning we have reached the end of the Simplex algorithm and found the optimal vertex at $(x,y)=(0,9)$. Try it out for yourself in the interactive widget below! Just like before, clicking on lines performs a change of variables, but now you can also see what happens to the matrix. The direction of increasing cost function is represented by the red arrow.<br><br>
 
-<div id="pivot2"></div>
+<div class="widget_container">
+  <div id="pivot2" class="js_widget"></div>
+  <div id="pivot2aux2" class="js_widget"></div>
+  <div id="pivot2aux" class="js_widget"></div>
+</div>
 
-<div id="pivot3"></div>
 </section>
 
 <section class="section-block">
@@ -738,6 +742,6 @@ Moving forward, I'd like to cover these and other topics related to LP (like Int
 </section>
 </div>
   </body>
-  <script type="module" src="/main.ts"></script>
+  <script type="module" src="./main.ts"></script>
   
 </html>
