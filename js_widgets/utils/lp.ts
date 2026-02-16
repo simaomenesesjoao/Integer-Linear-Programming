@@ -1,4 +1,4 @@
-import {Graphics, Text, FederatedPointerEvent, Container, ColorSource, TextStyle} from 'pixi.js';
+import {Graphics, Text, FederatedPointerEvent, ColorSource} from 'pixi.js';
 import { SimplexTableau, Constraint, build_tableau, pivot_into_feasible, simplex } from './simplex_cpp';
 
 const tol: number = 1e-7;
@@ -950,10 +950,10 @@ export class TableauToText2 {
       const rhs = (psign * A[i][bCol]).toFixed(1);
 
       const row = document.createElement("div");
-      row.className = "row";
+      row.className = "Trow";
 
       row.append(`${dicLab} = ${rhs}`);
-
+    
       for (const baseVar of basis) {
         const baseLab = this.idToLabel.get(baseVar);
         const c = -A[i][baseVar] * psign;
@@ -1002,7 +1002,7 @@ export class TableauToText2 {
     const cost = -(A[nSlacks][bCol]).toFixed(1);
 
     const row = document.createElement("div");
-    row.className = "row";
+    row.className = "Trow";
 
     row.append(`Cost = ${cost}`);
 
@@ -1497,96 +1497,6 @@ export class Polygon extends Graphics {
         this.draw(this.normalColor);
     }
 }
-
-
-// export class MatrixView extends Container {
-    
-//   draw(matrix: number[][], options = {}) {
-//   this.removeChildren(0, this.children.length, true);
-
-//   const {
-//     fontSize = 20,
-//     cellPadding = 5,
-//     fontFamily = "Courier New",
-//     color = 0x000000,
-//   } = options;
-
-//   const rows = matrix.length - 1;
-//   const cols = matrix[0].length;
-
-//   const textStyle = new TextStyle({
-//     fontFamily,
-//     fontSize,
-//     fill: color,
-//   });
-
-//   // --- 1️⃣ Measure column widths ---
-//   const columnWidths: number[] = new Array(cols).fill(0);
-
-//   for (let j = 0; j < cols; j++) {
-//     for (let i = 0; i < rows; i++) {
-//       const t = new Text(String(matrix[i][j]), textStyle);
-//       columnWidths[j] = Math.max(columnWidths[j], t.width);
-//       t.destroy();
-//     }
-//     columnWidths[j] += cellPadding * 2;
-//   }
-
-//   const sample = new Text("0", textStyle);
-//   const cellHeight = sample.height + cellPadding * 1.5;
-//   sample.destroy();
-
-//   const colX: number[] = [];
-//   let xCursor = 0;
-
-//   for (let j = 0; j < cols; j++) {
-//     colX[j] = xCursor;
-//     xCursor += columnWidths[j];
-//   }
-
-//   for (let i = 0; i < rows; i++) {
-//     for (let j = 0; j < cols; j++) {
-//       const text = new Text(String(matrix[i][j]), textStyle);
-//       text.anchor.set(0.5);
-
-//       text.x = colX[j] + columnWidths[j] / 2;
-//       text.y = i * cellHeight + cellHeight / 2;
-
-//       this.addChild(text);
-//     }
-//   }
-
-//   // --- 5️⃣ Draw brackets ---
-//   const g = new Graphics();
-
-//   const height = rows * cellHeight;
-//   const width = xCursor;
-
-//   const bracketOffset = 6;
-//   const xOffset = -4;
-//   const yOffset = 2;
-
-//   // LEFT bracket
-//   g.moveTo(xOffset + bracketOffset, -yOffset);
-//   g.lineTo(xOffset, -yOffset);
-//   g.lineTo(xOffset, height + yOffset);
-//   g.lineTo(xOffset + bracketOffset, height + yOffset);
-
-//   // RIGHT bracket
-//   g.moveTo(-xOffset + width - bracketOffset, -yOffset);
-//   g.lineTo(-xOffset + width, -yOffset);
-//   g.lineTo(-xOffset + width, height + yOffset);
-//   g.lineTo(-xOffset + width - bracketOffset, height + yOffset);
-
-//   g.stroke({
-//     width: 1,
-//     color,
-//     alpha: 1,
-//   });
-
-//   this.addChild(g);
-// };
-// }
 
 export class MatrixView2 {
 

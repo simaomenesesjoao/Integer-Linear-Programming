@@ -2,10 +2,10 @@ import * as THREE from 'three';
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 
-export function init3D(containerSelector: string, canvas: HTMLCanvasElement) {
+export function init3D(width: number, height: number, containerSelector: string, canvas: HTMLCanvasElement) {
 
-  let width: number = 400;
-  let height: number = 400;
+  // let width: number = 400;
+  // let height: number = 400;
 
   const container = document.getElementById(containerSelector);
   // const container = document.getElementById('three-container');

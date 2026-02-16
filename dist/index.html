@@ -2,18 +2,13 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- <link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.min.css" rel="stylesheet" /> -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.min.js"></script> -->
+    <!-- 1.0 -->
     
     <link rel="stylesheet" href="main.css">
 
     <title>Linear Programming - Simplex</title>
 
     <style>
-      body {
-        font-family: system-ui, sans-serif;
-        padding: 2rem;
-      }
 
       #snippet {
         width: 600px;
@@ -23,8 +18,8 @@
 
       #three-container {
         position: relative;
-        width: 400px;
-        height: 400px;
+        width: 300px;
+        height: 300px;
       }
 
       #three-container canvas,
@@ -33,17 +28,15 @@
         top: 0;
         left: 0;
       }
-
-
     </style>
+
   </head>
 
   <body>
 <div class="content">
-    <br><br>
-<h1>Linear Programming</h1>
 
 <section class="section-block">
+<h2>Linear Programming</h2>
 Linear Programming is a topic that is typically introduced in school and never approached again by the vast majority of people. I came across this topic again while trying to solve a particularly tricky problem in <a href="https://adventofcode.com/2025/day/10">Advent of Code</a> and was very disappointed by the lack of good resources on this topic. While the literature on the topic itself is vast, I felt like the intuition behind the methods was not sufficiently explored, and easily lended itself to some cool visuals. So, I decided to explore this topic in my own way, striving for interactivity and clarity, rather than algorithmic performance or mathematical exactness. Exactness and performance are already extensively covered in the literate, and in excelent projects like HiGHs (see resources below). Along this article, I provide code snippets for you to code along to. When put together, these snippets will hopefully give you a clear self-contained picture of how to programmatically solve a Linear Programming problem! 
 
 <b>Want to cite this?</b> Use the Zenodo link:<br><br>
@@ -84,7 +77,7 @@ TODO:
 <section class="section-block">
 
 <h3>Mathematical formulation</h3>
-To proceed to examine more interesting and complicated versions of the problems above, we need to begin by formulating the problem mathematically. Let $x$ be the number of hours Bob worked in job A and $y$ the number of hours he worked in job B. Then, the total income $I$ per day is $I=8x+9y$. Bob cannot work negative hours, so $x\geq0$ and $y\geq0$. The restriction that neither job can be worked on for longer than 5h per day is expressed as $x\leq5$  and $y\leq5$. Finally, he cannot work more than 7.5h per day, so $x+y\leq 7.5$. The problem then comes down to maximising the function $I=8x+9y$ inside the region bounded by the constraints. Mathematically, we are asked to do the following:<br><br>
+<p>To proceed to examine more interesting and complicated versions of the problems above, we need to begin by formulating the problem mathematically. Let $x$ be the number of hours Bob worked in job A and $y$ the number of hours he worked in job B. Then, the total income $I$ per day is $I=8x+9y$. Bob cannot work negative hours, so $x\geq0$ and $y\geq0$. The restriction that neither job can be worked on for longer than 5h per day is expressed as $x\leq5$  and $y\leq5$. Finally, he cannot work more than 7.5h per day, so $x+y\leq 7.5$. The problem then comes down to maximising the function $I=8x+9y$ inside the region bounded by the constraints. Mathematically, we are asked to do the following:</p>
 
 Maximize $8x + 9y$ (cost function) subject to the five constraints<br>
 <script type="math/tex; mode=display">
@@ -94,16 +87,16 @@ Maximize $8x + 9y$ (cost function) subject to the five constraints<br>
  x + y  &\le 7.5
 \end{aligned}
 </script>
-These constraints together define the following region in the plane:<br><br>
+<p>These constraints together define the following region in the plane:</p>
 
 <div id="region1"></div>
 
-The region in blue is called the <b>feasible region</b> because every point inside it satisfies all the constraints. When $x$ and $y$  are allowed to be real numbers, it is easy to believe that the optimal solution lies at one of the vertices of this bounded region, if it exists. A few other scenarios can also happen:
+<p>The region in blue is called the <b>feasible region</b> because every point inside it satisfies all the constraints. When $x$ and $y$  are allowed to be real numbers, it is easy to believe that the optimal solution lies at one of the vertices of this bounded region, if it exists. A few other scenarios can also happen:</p>
 <ul>
   <li>It can also happen that the solution is optimal along an entire edge. This can happen for example if job A and job B pay the same. Then, any amount of hours worked in either job yields the same income provided the total hours worked is 7.5h.</li>
   <li>The optimal solution is unbounded (see below). This can happen if there is no limit to the amount of hours that can be worked in either job. Ignoring the physical constraint that days have 24 hours, the optimal solution would be to work infinite hours in either job per day.</li>
   <li>There is no solution at all. For example, if Bob is restricted to work at most 7.5h in both jobs, but job A requires Bob to work 8h or more per day. Then, it is impossible to satisfy this constraint.</li>
-</ul><br>
+</ul>
 
 <div id="region2"></div>
 
@@ -112,11 +105,11 @@ The region in blue is called the <b>feasible region</b> because every point insi
 
 <section class="section-block">
 <h3>Linear Programming Geometry</h3>
-In an LP problem with $N$ variables, the complete set of constraints defines a convex region in $N$-dimensional space, whose boundary contains the solution. Every variable is assumed to be non-negative. This can be assumed with no loss of generality, since we can simply shift all the variables by a constant to make this true. Even though the assumptions $x\geq0$ and $y\geq0$ were made explicit in Bob's example, they are typically assumed to be present in all LP problems. <br><br>
+<p>In an LP problem with $N$ variables, the complete set of constraints defines a convex region in $N$-dimensional space, whose boundary contains the solution. Every variable is assumed to be non-negative. This can be assumed with no loss of generality, since we can simply shift all the variables by a constant to make this true. Even though the assumptions $x\geq0$ and $y\geq0$ were made explicit in Bob's example, they are typically assumed to be present in all LP problems.</p>
 
-Each constraint defines a region bounded by an $N-1$ dimensional hyperplane. For example, the constraint $x+y+2z \leq 4$ splits 3D space into two regions bounded by the strict equality $x+y+2z=4$, which defines a 2D plane in 3D space. Similarly, the constraint $x-y \leq 7$ divides the 2D plane into two regions bounded by the line $x-y=7$. <br><br>
+<p>Each constraint defines a region bounded by an $N-1$ dimensional hyperplane. For example, the constraint $x+y+2z \leq 4$ splits 3D space into two regions bounded by the strict equality $x+y+2z=4$, which defines a 2D plane in 3D space. Similarly, the constraint $x-y \leq 7$ divides the 2D plane into two regions bounded by the line $x-y=7$.</p>
 
-When $N$ non-parallel constraints are considered together, their intersection defines a single point in $N$ dimensional space. This point is a vertex of the feasible region if it additionally satisfies all the other constraints. In Bob's example, the point $x=5$ and $y=5$ strictly satisfies two inequalities (so it's a point of intersection between two lines), but it fails to satisfy the inequality $x+y\leq7.5$, so it cannot be a vertex of the polygon. While this point is not a vertex, this procedure still provides a hint on how to solve that LP problem:<br>
+<p>When $N$ non-parallel constraints are considered together, their intersection defines a single point in $N$ dimensional space. This point is a vertex of the feasible region if it additionally satisfies all the other constraints. In Bob's example, the point $x=5$ and $y=5$ strictly satisfies two inequalities (so it's a point of intersection between two lines), but it fails to satisfy the inequality $x+y\leq7.5$, so it cannot be a vertex of the polygon. While this point is not a vertex, this procedure still provides a hint on how to solve that LP problem:</p>
 <ol>
   <li>Consider all pairs of inequalities that don't define parallel boundaries, and find the intersection point. Efficiently doable with Gaussian elimination</li>
   <li>From all intersection points, collect the ones that satisfy every single inequality simultaneously. This forms the complete set of vertices of the bounding polygon</li>
@@ -158,13 +151,13 @@ Once that is understood, we will finally be ready to tackle the last question:
 <section class="section-block">
 <h3>Coordinate systems</h3>
 
- Let's start with an example. In 3D, the inequality $x-2y+z \leq 3$ separates 3D space into two regions with the plane $x-2y+z = 3$. We can define a "signed distance" to this plane to measure whether or not this constraint is being satisfied, and determine whether a point lies on that plane. Define the new variable $s$ by adding it to the equation $x-2y+z+s = 3$. If $s\gt0$, then all the points satisfying $x-2y+z+s=3$ will lie parallel to the plane, and will all satisfy the inequality. If $s \leq 0$, they would still be parallel, but the inequality will not be satisfied. If $s=0$, the inequality is strictly satisfied (the point $(x,y,z)$ lies on that plane). This type of variable is called a <b>slack</b> variable. Note that the word “distance” is under quotes because $s$ does not represent the real Cartesian distance to the plane, but is proportional to it, and its sign tells us which side of the constraint we're on. <br><br>
+<p>Let's start with an example. In 3D, the inequality $x-2y+z \leq 3$ separates 3D space into two regions with the plane $x-2y+z = 3$. We can define a "signed distance" to this plane to measure whether or not this constraint is being satisfied, and determine whether a point lies on that plane. Define the new variable $s$ by adding it to the equation $x-2y+z+s = 3$. If $s\gt0$, then all the points satisfying $x-2y+z+s=3$ will lie parallel to the plane, and will all satisfy the inequality. If $s \leq 0$, they would still be parallel, but the inequality will not be satisfied. If $s=0$, the inequality is strictly satisfied (the point $(x,y,z)$ lies on that plane). This type of variable is called a <b>slack</b> variable. Note that the word “distance” is under quotes because $s$ does not represent the real Cartesian distance to the plane, but is proportional to it, and its sign tells us which side of the constraint we're on.</p>
 
-As an example, in 2D, the constraint $2x+3y\leq15$ can be parametrized by using the slack variable $s$ as $2x + 3y + s = 15$. The constraint being satisfied is equivalent to $s\geq0$. In the snippet below, you can see this in action: as you move the mouse around, the slack variable $s$ will tell you how far away the mouse location is from satisfying the constraint. When $s$ is positive, the mouse is located in a region that satisfies the constraint.<br><br>
+<p>As an example, in 2D, the constraint $2x+3y\leq15$ can be parametrized by using the slack variable $s$ as $2x + 3y + s = 15$. The constraint being satisfied is equivalent to $s\geq0$. In the snippet below, you can see this in action: as you move the mouse around, the slack variable $s$ will tell you how far away the mouse location is from satisfying the constraint. When $s$ is positive, the mouse is located in a region that satisfies the constraint.</p>
 
 <div id="slack1"></div>
 
-Things get a lot more interesting when several constraints are at play. For example, consider the following inequalities in 2D<br>
+<p>Things get a lot more interesting when several constraints are at play. For example, consider the following inequalities in 2D</p>
 
 <script type="math/tex; mode=display">
 \begin{aligned}
@@ -173,7 +166,7 @@ Things get a lot more interesting when several constraints are at play. For exam
 \end{aligned}
 </script>
 
-Just like before, each inequality defines its own plane. Defining a slack variable for each inequality, we are able to measure how far away we are from satisfying each constraint:<br>
+<p>Just like before, each inequality defines its own plane. Defining a slack variable for each inequality, we are able to measure how far away we are from satisfying each constraint:</p>
 
 <script type="math/tex; mode=display">
 \begin{aligned}
@@ -182,7 +175,7 @@ Just like before, each inequality defines its own plane. Defining a slack variab
 \end{aligned}
 </script>
 
-This can be seen in the snippet below. Click on the lines to isolate each variable.
+<p>This can be seen in the snippet below. Click on the lines to isolate each variable.</p>
 
 <div id="slack2"></div>
 
@@ -192,7 +185,7 @@ This can be seen in the snippet below. Click on the lines to isolate each variab
 
 <section class="section-block">
 <h3>Changing coordinate systems</h3>
-Now let's see how coordinate systems defined by slack variables provide a natural way to move along edges. Consider the system of four inequalities<br>
+<p>Now let's see how coordinate systems defined by slack variables provide a natural way to move along edges. Consider the system of four inequalities</p>
 <script type="math/tex; mode=display">
 \begin{aligned}
  y     &\ge 1 \\
@@ -202,7 +195,7 @@ Now let's see how coordinate systems defined by slack variables provide a natura
 \end{aligned}
 </script>
 
-which describes the following unbounded region in the plane. <br><br>
+<p>which describes the following unbounded region in the plane.</p>
 
 <div id="slack3"></div>
 
@@ -356,6 +349,7 @@ Let's again look at the original equations.<br>
 \end{aligned}
 </script>
 In matrix form, we have the equivalent formulation as a matrix equation
+<div class="small-math">
 <script type="math/tex; mode=display">
 \left[\begin{array}{cccccc}
 0 & -1 & 1 & 0 & 0 & 0\\
@@ -374,7 +368,7 @@ s_{4}
 -1\\
 4\\
 -3
-\end{array}\right)</script>
+\end{array}\right)</script></div>
 More conveniently, considering we don't actually care about individual names of the variables and will need to operate on both sides of the equation simultaneously anyway, we can append the right-hand side to the matrix:
 <script type="math/tex; mode=display">
   \left[\begin{array}{ccccccccc}
@@ -723,8 +717,8 @@ The basis is now $(x,s_2)$ and the dictionary is $(y, s_1)$. The cost function r
 
 <div class="widget_container">
   <div id="pivot2" class="js_widget"></div>
-  <div id="pivot2aux2" class="js_widget"></div>
-  <div id="pivot2aux" class="js_widget"></div>
+  <div id="pivot2aux2" class="js_widget_coord"></div>
+  <div id="pivot2aux" class="js_widget_matrix"></div>
 </div>
 
 </section>

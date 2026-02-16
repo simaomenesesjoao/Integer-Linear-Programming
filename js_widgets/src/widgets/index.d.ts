@@ -64,4 +64,4 @@ export class RegionSnippet {
   destroy(): void;
 }
 
-export function init3D(containerSelector: string, canvas: HTMLCanvasElement): void;
+export function init3D(width: number, height: number,containerSelector: string, canvas: HTMLCanvasElement): void;

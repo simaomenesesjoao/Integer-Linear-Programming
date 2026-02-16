@@ -10,8 +10,8 @@ export async function initPivot1(id: string, id2: string) {
 
     const snippet = new PivotSnippet({
         container: document.getElementById(id)!,
-        width: 300,
-        height: 300,
+        width: 330,
+        height: 330,
         app_width: 300,
         constraints: constraints,
         costFunction: undefined,
@@ -34,8 +34,8 @@ export async function initPivot2(id: string, id2: string, id3: string) {
 
     const snippet = new PivotSnippet({
         container: document.getElementById(id)!,
-        width: 300,
-        height: 300,
+        width: 330,
+        height: 330,
         app_width: 300,
         constraints: constraints, 
         costFunction: [1.0, 2.0],
@@ -83,7 +83,7 @@ export async function initRegion1(id: string) {
 
     const snippet = new SlackSnippet({
         container: document.getElementById(id)!,
-        width: 800,
+        width: 330,
         height: 330,
         app_width: 300,
         constraints,
@@ -106,7 +106,7 @@ export async function initRegion2(id: string) {
 
     const snippet = new SlackSnippet({
         container: document.getElementById(id)!,
-        width: 800,
+        width: 330,
         height: 330,
         app_width: 300,
         constraints,
@@ -130,7 +130,7 @@ export async function initRegion3(id: string) {
 
     const snippet = new SlackSnippet({
         container: document.getElementById(id)!,
-        width: 800,
+        width: 330,
         height: 330,
         app_width: 300,
         constraints,
@@ -151,7 +151,7 @@ export async function initSlack1(id: string) {
 
     const snippet = new SlackSnippet({
         container: document.getElementById(id)!,
-        width: 800,
+        width: 330,
         height: 330,
         app_width: 300,
         constraints,
@@ -173,7 +173,7 @@ export async function initSlack2(id: string) {
 
     const snippet = new SlackSnippet({
         container: document.getElementById(id)!,
-        width: 800,
+        width: 330,
         height: 330,
         app_width: 300,
         constraints,
@@ -198,7 +198,7 @@ export async function initSlack3(id: string) {
 
     const snippet = new SlackSnippet({
         container: document.getElementById(id)!,
-        width: 800,
+        width: 330,
         height: 330,
         app_width: 300,
         constraints,
@@ -223,7 +223,7 @@ export async function initSlack4(id: string) {
 
     const snippet = new SlackSnippet({
         container: document.getElementById(id)!,
-        width: 800,
+        width: 330,
         height: 330,
         app_width: 300,
         constraints,
@@ -250,7 +250,7 @@ export async function initSlack5(id: string) {
 
     const snippet = new SlackSnippet({
         container: document.getElementById(id)!,
-        width: 800,
+        width: 330,
         height: 330,
         app_width: 300,
         constraints,
@@ -278,9 +278,9 @@ export function init(){
     initSlack4("slack4");
     initSlack5("slack5");
     const canvas = document.querySelector('#bg') as HTMLCanvasElement;
-    init3D('three-container', canvas);
+    init3D(300, 300, 'three-container', canvas);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    init();
-});
+// document.addEventListener('DOMContentLoaded', () => {
+//     init();
+// });

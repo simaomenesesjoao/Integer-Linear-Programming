@@ -2,17 +2,18 @@
   "name": "@simao/js-widgets",
   "version": "0.1.0",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/widgets/index.js",
+  "types": "src/widgets/index.d.ts",
   "exports": {
     "types": "./src/widgets/index.d.ts",
     "import": "./dist/widgets/index.js"
   },
   "dependencies": {
     "pixi.js": "^8.16.0",
-    "three": "^0.182.0",
-    "typescript": "^5.9.3"
+    "three": "^0.182.0"
   },
   "devDependencies": {
+    "typescript": "^5.9.3",
     "vite": "^7.3.1"
   },
   "scripts": {

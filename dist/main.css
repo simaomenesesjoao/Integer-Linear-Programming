@@ -49,8 +49,8 @@
   margin-bottom: 12px;
 }
 
-.dictionary .row,
-.cost .row {
+.dictionary .Trow,
+.cost .Trow {
   margin-bottom: 6px;
 }
 
@@ -78,4 +78,17 @@
 
 .js_widget {
   padding: 10px;
+}
+
+.js_widget_coord {
+  padding: 10px;
+  width: 300px;
+}
+.js_widget_matrix {
+  padding: 10px;
+  width: 300px;
+}
+
+.small-math .katex-display {
+  font-size: 0.8em;
 }
