@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="style.css">
+    <title>Linear Programming - Simplex</title>
+  </head>
+
+  <body>
+<div class="content">
+
+
+<section class="section-block">
+<h2>1. Introduction</h2>
+<p>Optimisation is a core part of human life. In many aspects of our day-to-day, we try to find the most efficient solution to any given problem. For example, when going to work, we want to do it as quickly as possible in order to minimise the time spent commuting. In theory, we might take the shortest route and go way over the speed limit to get it done as quickly as possible. In practice, however, we have to do it under the constraint of a speed limit. And the shortest route might require paying tolls. Under a budget constraint, that shortest route is no longer ideal. We humans tend to be pretty good at finding generally good intuitive solutions to these kinds of problems, but is there a way to find the absolute best possible solution?</p>
+</section>
+
+<section class="section-block">
+<h3>Linear Programming</h3>
+
+<p>Sadly, in general, the answer is no. But in some specific contexts, problems can be framed in a particularly simple way which has provable optimal solutions. Consider for example the following problem: Bob is working two part-time jobs and he can choose how many hours to work in each. Job A pays £8/h and job B pays £9/h. He is only allowed to work a maximum of 5h in each job, and a maximum of 7.5h total. How many hours in each job should he work to maximise his income? This type of problems are called Linear Programming (LP) problems. This problem is linear because the income function is linear (that is, if Bob works twice the time, he will get twice the money) and the constraints are linear too (the sum of hours worked in both jobs is a linear formula).</p>
+
+<p>In this case, it's pretty obvious that the best strategy would be for Bob to work the most profitable job for as long as possible, and then switch to the least profitable one with the remaining hours. So he should work job B for 5h and job A for 2.5h. </p>
+
+<p>Next, suppose an additional rule is added: only full hours worked are paid. If Bob works 5.5h, he will get paid 5h anyway. Then it only makes sense to work integer hours. Now, the optimal solution is to work job B for 5h and job A for 2h. This is a further restriction on the original problem, and problems of this type are called Integer Linear Programming (ILP) problems.</p>
+
+<p>So far, it is easy to infer the solution from intuition alone, but what if there are more complicated constraints applied? Or what if Bob was actually juggling four part-time jobs istead of two?</p>
+</section>
+
+<section class="section-block">
+
+<h3>Mathematical formulation</h3>
+<p>To proceed to examine more interesting and complicated versions of the problems above, we need to begin by formulating the problem mathematically. Let $x$ be the number of hours Bob worked in job A and $y$ the number of hours he worked in job B. Then, the total income $I$ per day is $I=8x+9y$. Bob cannot work negative hours, so $x\geq0$ and $y\geq0$. The restriction that neither job can be worked on for longer than 5h per day is expressed as $x\leq5$  and $y\leq5$. Finally, he cannot work more than 7.5h per day, so $x+y\leq 7.5$. The problem then comes down to maximising the function $I=8x+9y$ inside the region bounded by the constraints. Mathematically, we are asked to do the following:</p>
+
+Maximize $8x + 9y$ (cost function) subject to the five constraints<br>
+<script type="math/tex; mode=display">
+\begin{aligned}
+ 0 \le x &\le 5 \\
+ 0 \le y &\le 5 \\
+ x + y  &\le 7.5
+\end{aligned}
+</script>
+<p>These constraints together define the following region in the plane:</p>
+
+<div id="region1"></div>
+
+<p>The region in blue is called the <b>feasible region</b> because every point inside it satisfies all the constraints. When $x$ and $y$  are allowed to be real numbers, it is easy to believe that the optimal solution lies at one of the vertices of this bounded region, if it exists. A few other scenarios can also happen:</p>
+<ul>
+  <li>It can also happen that the solution is optimal along an entire edge. This can happen for example if job A and job B pay the same. Then, any amount of hours worked in either job yields the same income provided the total hours worked is 7.5h.</li>
+  <li>The optimal solution is unbounded (see below). This can happen if there is no limit to the amount of hours that can be worked in either job. Ignoring the physical constraint that days have 24 hours, the optimal solution would be to work infinite hours in either job per day.</li>
+  <li>There is no solution at all. For example, if Bob is restricted to work at most 7.5h in both jobs, but job A requires Bob to work 8h or more per day. Then, it is impossible to satisfy this constraint.</li>
+</ul>
+
+<div id="region2"></div>
+
+<p>Visually, it is obvious to understand what vertex has the optimal solution when there are only two variables involved and a few constraints. More complicated Linear Programming problems can have thousands of variables, and lie in an unimaginable 1000-dimensional space, so we need a more robust way to find a solution.</p>
+</section>
+
+<section class="section-block">
+<h3>Linear Programming Geometry</h3>
+<p>In an LP problem with $N$ variables, the complete set of constraints defines a convex region in $N$-dimensional space, whose boundary contains the solution. Every variable is assumed to be non-negative. This can be assumed with no loss of generality, since we can simply shift all the variables by a constant to make this true. Even though the assumptions $x\geq0$ and $y\geq0$ were made explicit in Bob's example, they are typically assumed to be present in all LP problems.</p>
+
+<p>Each constraint defines a region bounded by an $N-1$ dimensional hyperplane. For example, the constraint $x+y+2z \leq 4$ splits 3D space into two regions bounded by the strict equality $x+y+2z=4$, which defines a 2D plane in 3D space. Similarly, the constraint $x-y \leq 7$ divides the 2D plane into two regions bounded by the line $x-y=7$.</p>
+
+<p>When $N$ non-parallel constraints are considered together, their intersection defines a single point in $N$ dimensional space. This point is a vertex of the feasible region if it additionally satisfies all the other constraints. In Bob's example, the point $x=5$ and $y=5$ strictly satisfies two inequalities (so it's a point of intersection between two lines), but it fails to satisfy the inequality $x+y\leq7.5$, so it cannot be a vertex of the polygon. While this point is not a vertex, this procedure still provides a hint on how to solve that LP problem:</p>
+<ol>
+  <li>Consider all pairs of inequalities that don't define parallel boundaries, and find the intersection point. Efficiently doable with Gaussian elimination</li>
+  <li>From all intersection points, collect the ones that satisfy every single inequality simultaneously. This forms the complete set of vertices of the bounding polygon</li>
+  <li>Evaluate the cost function on every single vertex of the polygon and check which vertex (or set of vertices) yields the largest value. This is the desired solution</li>
+</ol>
+Although technically correct, this approach falls short due to a couple of practical points:
+<ol>
+  <li>In an $N$-dimensional problem with $M$ constraints, we would have to check $M\choose N$ points in the worst case, which can be extremely inefficient for large problems.</li>
+  <li>It cannot check whether the region is unbounded. For example, if I want to maximise $x$ subject to $x\geq0$, then there is no solution, because $x$ can be arbitrarily large</li>
+</ol>
+
+<p>The inefficiency comes in part due to our lack of knowledge about the location of the vertices, <b>but what if we already knew the location of one of them?</b> Then, we could simply move along the edges in the direction that increases the cost function, and potentially be done in a couple of steps. This is the idea behind the <b>Simplex Method</b>, devised by <a href="https://en.wikipedia.org/wiki/George_Dantzig">George Dantzig</a> and whose work later paved the way to a Nobel Prize in Economics.</p>
+
+The Simplex Method is very intuitive to explain visually, but actually understanding the intuition behing its inner workings require some care. This is exactly what I want to do in the next sections:<br>
+<ol>
+  <li>First, we need to understand how to create coordinate systems out of the constraints</li>
+  <li>Second, we will see how changing between these coordinate systems can be used to traverse the edges</li>
+  <li>Then, we find a prescription using the cost function to figure out which edges to move along</li>
+</ol>
+
+That plan requires using a valid vertex to begin with, so the next natural question is
+<ol start="4">
+  <li>How do I find the location of one vertex in the first place?</li>
+</ol>
+
+Once that is understood, we will finally be ready to tackle the last question:
+<ol start="5">
+  <li>Everything was done using real numbers so far. How do I impose the solutions be integers?</li>
+</ol>
+
+<p>Along the way, I will show <code>C++</code> code snippets that illustrate the algorithms behind the Simplex Method and interactive <code>javascript</code> snippets that allow you to play with the algorithms.</p>
+</section>
+
+
+<section class="section-block">
+<b>Want to cite this?</b> Use the Zenodo link:<br><br>
+
+Additional resources:
+<ul>
+  <li>Theory of Linear & Integer Programming - Alexander Schrijver </li>
+  <li>The Art of Linear Programming (<a href="https://www.youtube.com/watch?v=E72DWgKP_1Y&t=224s">Youtube video</a>)</li>
+  <li>My implementation in C++ on <a href="https://github.com/simaomenesesjoao/Integer-Linear-Programming">Github</a></li>
+  <li>Maximization of a Linear Function of Variables Subject to Linear Inequalities, by George B. Dantzig (1951)</li>
+  <li>HiGHS project: <a href="https://highs.dev/">highs.dev</a></li>
+</ul>
+
+TODO:
+<ul>
+  <li>referencias ao longo do texto</li>
+  <li>table of contents automática</li>
+</ul>
+</section>
+
+</div>
+  </body>
+  <script type="module" src="./main.ts"></script>
+  
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="style.css">
+    <title>Linear Programming - Simplex</title>
+  </head>
+
+  <body>
+<div class="content">
+
+<section class="section-block">
+<h2>2. Pivoting</h2>
+<p>As mentioned above, a Linear Programming problem consists of a set of constraints and an objective (cost) function. The Simplex Method relies on pivoting across boundary vertices of the feasible region. The first step to understand how the Simplex Method is implemented is to realize that the constraints give rise to natural coordinate systems.</p>
+</section>
+
+<section class="section-block">
+<h3>Coordinate Systems</h3>
+
+<p>Let's start with an example. In 3D, the inequality $x-2y+z \leq 3$ separates 3D space into two regions with the plane $x-2y+z = 3$. We can define a "signed distance" to this plane to measure whether or not this constraint is being satisfied, and determine whether a point lies on that plane. Define the new variable $s$ by adding it to the equation $x-2y+z+s = 3$. If $s\gt0$, then all the points satisfying $x-2y+z+s=3$ will lie parallel to the plane, and will all satisfy the inequality. If $s \leq 0$, they would still be parallel, but the inequality will not be satisfied. If $s=0$, the inequality is strictly satisfied (the point $(x,y,z)$ lies on that plane). This type of variable is called a <b>slack</b> variable. Note that the word “distance” is under quotes because $s$ does not represent the real Cartesian distance to the plane, but is proportional to it, and its sign tells us which side of the constraint we're on.</p>
+
+<p>As an example, in 2D, the constraint $2x+3y\leq15$ can be parametrized by using the slack variable $s$ as $2x + 3y + s = 15$. The constraint being satisfied is equivalent to $s\geq0$. In the snippet below, you can see this in action: as you move the mouse around, the slack variable $s$ will tell you how far away the mouse location is from satisfying the constraint. When $s$ is positive, the mouse is located in a region that satisfies the constraint.</p>
+
+<div class="widget_container"> 
+  <div id="slack1" class="js_widget"></div>
+</div>
+
+<p>Things get a lot more interesting when several constraints are at play. For example, consider the following inequalities in 2D</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+ 2x + y  &\le 11 \\
+ x - 3y  &\le 2
+\end{aligned}
+</script>
+
+<p>Just like before, each inequality defines its own plane. Defining a slack variable for each inequality, we are able to measure how far away we are from satisfying each constraint:</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+ 2x + y + s_1 &= 11 \\
+ x - 3y + s_2 &= 2
+\end{aligned}
+</script>
+
+<p>This can be seen in the snippet below. Click on the lines to isolate each variable.</p>
+
+
+<div class="widget_container"> 
+  <div id="slack2" class="js_widget"></div>
+</div>
+
+<p>Considering this is a 2D setting, setting the two slack variables to zero will yield a system of equations that provides the intersection point once solved (assuming the lines are not parallel). The solution in this case is $(x,y) =(5, 1)$. More generally, the variables $s_1$ and $s_2$ are able to describe any point in the plane - they form a (not necessarily orthogonal) <b>coordinate system</b>. Importantly, when $s_1$ and $s_2$ are non-negative, they always yield points that satisfy the corresponding inequalities! <b>Slack variables provide a convenient way to parametrize regions bounded by inequalities!</b> To do this more generally in $N$ dimensions, we just need $N$ inequalities that contain no parallel hyperplanes.</p>
+
+</section>
+
+<section class="section-block">
+<h3>Changing coordinate systems</h3>
+<p>Now let's see how coordinate systems defined by slack variables provide a natural way to move along edges. Consider the system of four inequalities</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+ y     &\ge 1 \\
+ x     &\ge 1 \\
+ y - x &\le 4 \\
+ x + y &\ge 3
+\end{aligned}
+</script>
+
+<p>which describes the following unbounded region in the plane.</p>
+
+
+<div class="widget_container"> 
+  <div id="slack3" class="js_widget"></div>
+</div>
+
+To use slack variables, start by expressing the inequalities using $\leq$ signs, so that slack variables can retain the same interpretation as before.<br>
+<script type="math/tex; mode=display">
+\begin{aligned}
+ -y     &\le -1 \\
+ -x     &\le -1 \\
+ y - x  &\le 4 \\
+ -x - y &\le -3
+\end{aligned}
+</script>
+
+
+Let's represent the constraints using slack variables:<br>
+<script type="math/tex; mode=display">
+\begin{aligned}
+ -y     + s_1 &= -1 \\
+ -x     + s_2 &= -1 \\
+ y - x  + s_3 &=  4 \\
+ -x - y + s_4 &= -3
+\end{aligned}
+</script>
+
+
+It's relevant to note that, even though it's not made explicit, the cartesian variables $x$ and $y$ also act as slack variables for the implicit constraints $x\geq0$ and $y\geq0$, putting them on equal footing to every other slack variable. <br><br>
+
+Let's start by building a coordinate system out of the 1st and 4th equations. Rearranging, these equations give us the transformation law between the $(x,y)$ coordinate system and the $(s_1, s_4)$ coordinate system.<br>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+ s_1 &= y - 1 \\
+ s_4 &= x + y - 3
+\end{aligned}
+</script>
+
+and vice versa:<br>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+ x &= s_4 - s_1 + 2 \\
+ y &= s_1 + 1
+\end{aligned}
+</script>
+
+
+Setting $s_1=s_4=0$ reveals the origin of that coordinate system in the $(x,y)$ coordinate system, that is, $(x,y)=(2,1)$. To change coordinates from $(x,y)$ to $(s_1, s_4)$, express everything in terms of $s_1$ and $s_4$:<br>
+<script type="math/tex; mode=display">
+\begin{aligned}
+ y     &= s_1 + 1 \\
+ s_2   &= s_4 - s_1 + 1 \\
+ s_3   &= s_4 - 2s_1 + 5 \\
+ x     &= s_4 - s_1 + 2
+\end{aligned}
+</script>
+
+We have now successfully described the variables $x,y,s_2,s_3$  in terms of $s_1,s_4$. It can be seen as a <b>dictionary</b> between the <b>basis variables</b> (also called basic variables) and the <b>non-basis</b> (or non-basic) variables. Note that the origin of this new coordinate system is a boundary vertex of the feasible region and thus satisfies all the inequalities. To see this, just set $s_1=s_4=0$ in the equations above to see that all the remaining slack variables are positive, meaning that the inequalities are satisfied:<br>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+ y   &= 1 \\
+ s_2 &= 1 \\
+ s_3 &= 5 \\
+ x   &= 2
+\end{aligned}
+</script>
+
+
+Visually, the region looks like this now, under the new coordinate system:
+
+
+<div class="widget_container"> 
+  <div id="slack4" class="js_widget"></div>
+</div>
+
+<p>Remember that the origin of this new reference frame comes from the intersection of the lines defined by $s_1=s_4=0$. </p>
+
+</section>
+
+<section class="section-block">
+<h3>Moving along boundary vertices - pivoting</h3>
+
+Now we can start asking the more interesting question: What if we want to move along from this vertex to the next one? How do I ensure that it's still a boundary vertex? <br><br>
+
+First, we need to reflect on what it means to move along an edge from one vertex to another. This vertex is simply the intersection of two lines (defined by $s_1, s_4$). If we move along the edge defined by $s_1$, we remain at $s_1=0$ but are allowed to modify $s_4$. Decreasing $s_4$ from that vertex would make it negative, so we need to increase it. Let's increase $s_4$ as much as we can until another slack variable (say, $s_2$) assumes the value zero. That's as far as we can go without making any other slack variable negative. Then, we know that we reached a new vertex because it results from the intersection of two lines (two slack variables zero). More so, in virtue of having moved along an edge and keeping all slack variables positive, we know that this is also a boundary vertex. Let's look back at our equations and see this in action. <br>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+ y     &= s_1 + 1 \\
+ s_2   &= s_4 - s_1 + 1 \\
+ s_3   &= s_4 - 2s_1 + 5 \\
+ x     &= s_4 - s_1 + 2
+\end{aligned}
+</script>
+
+Starting from the coordinate system's origin ($s_1=s_4=0$), let's try to move along the $s_1$ edge while increasing $s_4$. What other slack variable can we set to zero as $s_4$ is increased? There are several options. In the snippet below, you can hover the mouse along the $s_1=0$ line and visually identify what lines it intersects. Clicking on each line toggles the corresponding slack variable, so you can see when it becomes zero. It includes $x$ and $y$ as slack variables to make it clearer that they are variables to consider.<br><br>
+
+
+
+<div class="widget_container"> 
+  <div id="slack5" class="js_widget"></div>
+</div>
+
+First, note that we can either try to set $s_2$, $s_3$ or $x$ to zero by increasing $s_4$ from zero while keeping $s_1=0$, giving us three new candidate vertices. Visually, this represents all the intersections of the $s_1=0$ line with all the other lines besides $s_4=0$. It also clear that none of these points remain inside the feasible region. Mathematically, looking at the equations, this is represented by the fact that the only way to get $s_2$, $s_3$ or $x$ to zero while $s_1$ is already zero, is to make $s_4$ be negative. That's because the coefficient of $s_4$ in all the corresponding equations is positive. In conclusion, we cannot pivot away from the current boundary vertex into a new boundary vertex by staying on the $s_1=0$ line.<br><br>
+
+In that case, let's try the other route: keep $s_4=0$ and try to increase $s_1$ until another slack variable reaches zero. Notably, the $s_4=0$ line intersects all others, so we can decide to set any one of $s_2$, $s_3$, $x$ or $y$ to zero. 
+<ul>
+  <li>Setting $y=0$ is not possible because the coefficient of $s_1$ in that equation is positive</li>
+  <li>Setting $s_2=0$ is possible for $s_1=1$</li>
+  <li>Setting $s_3=0$ is possible for $s_1=2.5$</li>
+  <li>Setting $x=0$ is possible for $s_1=2$</li>
+</ul>
+From these four options, the only one that represents a vertex inside the feasible region is $s_2=0$. To achieve any of the other options, $s_2$ would necessarily reach negative values, violating the non-negativity of all the slack variables inside the feasible region.<br><br>
+
+With this exercise, we arrive at the important piece of information that the vertex defined by $s_2=s_4=0$ is a boundary vertex of the feasible region, just like the vertex defined by $s_1=s_4=0$. In order to proceed from here and find the next boundary vertices, we can simply change coordinates into the $(s_2, s_4)$ coordinate system and repeat the exact same process. Since we know that both $s_1=s_4=0$ and $s_2=s_4=0$ represent boundary vertices, we can then safely change variables from $(s_1,s_4)$ to $(s_2, s_4)$ with the guarantee that the new coordinate system is centered around a boundary vertex. Performing the change of variables:<br>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+ y     &= s_4 - s_2 + 2 \\
+ s_1   &= s_4 - s_2 + 1 \\
+ s_3   &= -s_4 + 2s_2 + 3 \\
+ x     &= s_2 + 1
+\end{aligned}
+</script>
+
+It is always useful to pause and double-check that the origin of the new coordinate system is indeed a boundary vertex. Setting $s_2=s_4=0$, we get $y=2$, $s_1=1$, $s_3=3$ and $x=1$. All of the slack variables are positive, meaning all the constraints are satisfied and this is indeed a boundary vertex.<br><br>
+
+Now you might ask: Why is it so important to define everything in terms of coordinate systems? Why do we need all this machinery and perform so many changes of variables? The reason for this is that once you're in a coordinate system defined by slack variables, it is very easy to find all the vertices connected to the origin vertex. Each boundary vertex that is connected to the origin of the current coordinate system is reachable by moving along one of the basis axis. <br><br>
+
+Thus, we arrive at the following prescription to move from one boundary vertex to the adjacent ones:
+<ol>
+  <li>Choose a basis slack variable to remove from the coordinate system. </li>
+  <li>Find the first slack variable to go to zero as you increase the outgoing variable. It may happen that no slack variable can be found like this, meaning the region is unbounded in that direction.</li>
+</ol>
+The following snippet shows how the systems of equations change as we pivot from one vertex to the other. Click on a non-highlighted line to use the corresponding slack variable for the new basis.
+
+<div class="widget_container">
+  <div id="pivot1" class="js_widget"></div>
+  <div id="pivot1aux" class="js_widget_coord"></div>
+</div>
+
+
+<p>This process of changing coordinates is called pivoting, and is very efficiently done with matrices, using Gaussian elimination.</p>
+
+</section>
+
+</div>
+</body>
+  
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="style.css">
+    <title>Linear Programming - Simplex</title>
+  </head>
+
+  <body>
+<div class="content">
+
+<section class="section-block">
+<h2>3. Pivoting with matrices</h2> 
+<p>In practice, an efficient Linear Programming solver would use matrices internally, in order to make use of vectorized operations and data locality. In this section, we'll see how to express the process of pivoting explained previously using matrices.</p>
+</section>
+
+<section class="section-block">
+<h3>Matrix Formulation</h3> 
+Let's again look at the original equations.<br>
+<script type="math/tex; mode=display">
+\begin{aligned}
+ -y      + s_1 &= -1 \\
+ -x      + s_2 &= -1 \\
+ y - x   + s_3 &=  4 \\
+ -x - y  + s_4 &= -3
+\end{aligned}
+</script>
+In matrix form, we have the equivalent formulation as a matrix equation
+<div class="small-math">
+<script type="math/tex; mode=display">
+\left[\begin{array}{cccccc}
+0 & -1 & 1 & 0 & 0 & 0\\
+-1 & 0 & 0 & 1 & 0 & 0\\
+-1 & 1 & 0 & 0 & 1 & 0\\
+-1 & -1 & 0 & 0 & 0 & 1
+\end{array}\right]\left(\begin{array}{c}
+x\\
+y\\
+s_{1}\\
+s_{2}\\
+s_{3}\\
+s_{4}
+\end{array}\right)=\left(\begin{array}{c}
+-1\\
+-1\\
+4\\
+-3
+\end{array}\right)</script></div>
+More conveniently, considering we don't actually care about individual names of the variables and will need to operate on both sides of the equation simultaneously anyway, we can append the right-hand side to the matrix:
+<script type="math/tex; mode=display">
+  \left[\begin{array}{ccccccccc}
+0 & -1 & 1 & 0 & 0 & 0 & \vdots & -1\\
+-1 & 0 & 0 & 1 & 0 & 0 & \vdots & -1\\
+-1 & 1 & 0 & 0 & 1 & 0 & \vdots & 4\\
+-1 & -1 & 0 & 0 & 0 & 1 & \vdots & -3
+\end{array}\right]</script>
+<p>where separators were added to make this distinction clearer. For bookkeeping, let's keep track of the basis variables ($x$, $y$) and the dictionary relating the matrix rows to the slack variable it is defining. In this case, by order of increasing row, it is ($s_1$, $s_2$, $s_3$, $s_4$), that is row 1 represents $s_1$, row 2 represents $s_2$ and so on.</p>
+
+</section>
+
+<section class="section-block">
+<h3>Moving into other vertices</h3>
+
+Right now, everything is still expressed in the $(x,y)$ coordinate system. Let's now swap out $x$ (column 1) with $s_4$  (row 4), meaning we eliminate $x$ from all the other rows, and set its coefficient in row 4 to one.
+<script type="math/tex; mode=display">
+  \left[\begin{array}{ccccccccc}
+0 & -1 & 1 & 0 & 0 & 0 & \vdots & -1\\
+0 & 1 & 0 & 1 & 0 & -1 & \vdots & 2\\
+0 & 2 & 0 & 0 & 1 & -1 & \vdots & 7\\
+1 & 1 & 0 & 0 & 0 & -1 & \vdots & 3
+\end{array}\right]
+</script>
+The basis variables are now ($s_4$, $y$) and the dictionary is ($s_1$, $s_2$, $s_3$, $x$). This process is just Gaussian elimination, and here's a code snippet to do it:
+<pre><code class="language-cpp">using Matrix = Eigen::MatrixXd;
+
+void gaussian_elimination(Matrix& matrix, unsigned int row, unsigned int col){
+    double entry = matrix(row, col);
+
+    // Gaussian elimination cannot be done on a zero entry
+    assert(!is_equal(entry, 0));
+    assert(row &lt; matrix.rows());
+    assert(col &lt; matrix.cols());
+
+    matrix.row(row) /= entry;
+
+    for(unsigned int i=0; i&lt;matrix.rows(); i++){
+        if(i == row){
+            continue;
+        }
+        matrix.row(i) -= matrix.row(row)*matrix(i, col);
+    }
+}
+</code></pre>
+Changing coordinate systems is as simple as doing one sweep of Gaussian elimination.<br><br>
+Now do the same to eliminate $y$  in favor of $s_1$ (row 1)
+<script type="math/tex; mode=display">
+\left[\begin{array}{ccccccccc}
+0 & 1 & -1 & 0 & 0 & 0 & \vdots & 1\\
+0 & 0 & 1 & 1 & 0 & -1 & \vdots & 1\\
+0 & 0 & 2 & 0 & 1 & -1 & \vdots & 5\\
+1 & 0 & 1 & 0 & 0 & -1 & \vdots & 2
+\end{array}\right]
+</script>
+The basis variables are now ($s_4$, $s_1$) and the dictionary is ($y$, $s_2$, $s_3$, $x$). Each of these dictionary variables has coefficient one in the corresponding column. Notice how these coefficients are the only nonzero entries in those columns, meaning they are not used in any other expression except the one defining them in terms of the basis variables. <br><br>
+
+<p>After these two pivots, we are now in the coordinate system defined by slack variables $s_1$ and $s_4$. It is really easy to obtain the coordinates of this coordinate system's origin from the matrix. We simply equate the dictionary to the right-hand side: $(y, s_2, s_3, x) = (1,1,5,2)$ and the basis to zero: $(s_1, s_4) = (0,0)$. In particular, we note that at this origin all the slack variables are non-negative ($s_1=0$, $s_2=1$, $s_3=5$, $s_4=0$), meaning we are within the feasible region; and the Cartesian coordinates (or Cartesian slack variables) are $x=2$ and $y=1$. Two of the slack variables are zero, meaning this is a boundary vertex of the feasible region, and this vertex has Cartesian coordinates $(x,y)=(2,1)$.</p>
+</section>
+
+<section class="section-block">
+<h3>Pivoting from one boundary vertex to the next</h3>
+
+Suppose now, just like in the example of the previous section, that we want to pivot away from this vertex into the next boundary vertex.<br><br>
+
+When we were dealing with equations before, $s_4$ had positive coefficient in all the equations, meaning it could never drive the corresponding slack variables to zero. With matrices, the equivalent statement is to notice that all the elements in the $s_4$ column are negative or zero.<br><br>
+
+$s_1$, on the other hand, has three positive numbers in its column, meaning that it can pivot into either $s_2$, $s_3$ or $x$. The first one to get to zero as $s_1$ increases is $s_2$ (second row), meaning this is the next boundary vertex. Which slack variable is the first one to go to zero is determined by choosing the one with the smallest ratio to the RHS. Concretely:
+<ul>
+  <li>In row 1 (variable $y$), the $s_1$ coefficient is negative, so $y$ cannot be pivoted into.</li>
+  <li>In row 2 (variable $s_2$), the $s_1$ coefficient is $1$, and the RHS is $1$, so their ratio is also $1$</li>
+  <li>In row 3 (variable $s_3$), the $s_1$ coefficient is $2$, and the RHS is $5$, so their ratio is $2.5$</li>
+  <li>In row 4 (variable $x$), the $s_1$ coefficient is $1$, and the RHS is $2$, so their ratio is $2$</li>
+</ul>
+The smallest ratio of all of this is $1$, meaning $s_2$ should be the chosen variable.  The code snippet below describes just that:
+<pre><code class="language-cpp">std::optional&lt;unsigned int&gt; find_lowest_ratio_row(const Matrix& matrix, unsigned int col, unsigned int num_constraints){
+    unsigned int last_col = matrix.cols()-1;
+
+    std::optional&lt;double&gt; smallest_ratio = std::nullopt;
+    std::optional&lt;unsigned int&gt; row = std::nullopt;
+
+    for(unsigned int i=0; i&lt;num_constraints; i++){
+        double entry = matrix(i, col);
+        double right = matrix(i, last_col);
+
+        if(entry &lt; tol || right &lt; tol){
+            continue;
+        }
+        double ratio = right/entry;
+
+        if(!smallest_ratio || ratio &lt; *smallest_ratio){
+            smallest_ratio = ratio;
+            row = i;
+        }
+    }
+    
+    return row;
+}</code></pre>
+
+To eliminate $s_1$ in favor of $s_2$, we just need to use the second row to eliminate all occurrences of $s_1$.
+<script type="math/tex; mode=display">
+\left[\begin{array}{ccccccccc}
+0 & 1 & 0 & 1 & 0 & -1 & \vdots & 2\\
+0 & 0 & 1 & 1 & 0 & -1 & \vdots & 1\\
+0 & 0 & 0 & -2 & 1 & -3 & \vdots & 3\\
+1 & 0 & 0 & -1 & 0 & 0 & \vdots & 1
+\end{array}\right]
+</script>
+The basis variables are now ($s_4$, $s_2$) and the dictionary is ($y$, $s_1$, $s_3$, $x$). Extracting the coordinates like before, we find $(x,y)=(1,2)$. This is the position of the next boundary vertex.<br><br>
+
+In this particular case, there was only one possible next boundary vertex because the region was unbounded from one side. However, in general, this method enables us to easily pivot from any boundary vertex to any of its neighbouring boundary vertices.
+
+</section>
+
+<section class="section-block">
+<h3>Pivoting rules</h3>
+And so we arrive at the following rules for pivoting from one boundary vertex into the next:
+<ol>
+  <li>Choose the variable that you want to remove from the coordinate system.</li>
+  <li>In its corresponding column, look at all the rows with positive entries, and pick the row that has the smallest ratio to the last column. That is, if the last column has value $b$ and the entry has value $a$, pick the row with smallest $b/a$.</li>
+  <li>The variable labelling this row is the one that's going to be the new coordinate.
+This process is equivalent to moving from one boundary vertex to another along the edge defined by all other basis variables being zero except the one being swapped out.</li>
+</ol>
+
+At this point, it makes sense to define the Simplex Tableau as the combination of a matrix and the variable bookkeeping:
+
+<pre><code class="language-cpp">using VectorI = Eigen::VectorXi;
+
+class Tableau {
+    VectorI basis;
+    VectorI dictionary;
+    Matrix matrix;
+};</code></pre>
+
+The process of changing coordinate systems is a method of that class:
+
+<pre><code class="language-cpp">void Tableau::pivot(unsigned int var_out, unsigned int row){
+    // Gaussian elimination, plus keeping track of the change of variables
+
+    gaussian_elimination(matrix, row, var_out);
+
+    unsigned int var_in = dictionary(row);
+    const auto basis_index = index_of(basis, var_out);
+    basis(*basis_index) = var_in;
+    dictionary(row) = var_out;
+}</code></pre>
+
+where index_of simply returns the index of var_out in the basis, if it exists
+<pre><code class="language-cpp">std::optional&lt;unsigned int&gt; index_of(const VectorI& vector, unsigned int val){
+    for(unsigned int i=0; i&lt;vector.size(); i++){
+        if(vector(i) == val){
+            return i;
+        }
+    }
+    return std::nullopt;
+}</code></pre>
+
+Finally, the complete process of looking for the next boundary vertex and pivoting into it can be summarized in the following code snippet:
+<pre><code class="language-cpp">bool Tableau::simplex_pivot(unsigned int var_out){
+
+    // Can't pivot out of a variable if it's not in the basis
+    const auto basis_index = index_of(basis, var_out);
+    assert(basis_index);
+
+    const auto row = find_lowest_ratio_row(matrix, var_out, num_constraints);
+
+    // Cannot find next vertex - unbounded
+    if(!row){
+        return false;
+    }
+
+    pivot(var_out, *row);
+
+    return true;
+}
+</code></pre>
+
+</section>
+
+</div>
+  </body>
+  <script type="module" src="./main.ts"></script>
+  
+</html>

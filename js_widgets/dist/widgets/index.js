@@ -1141,7 +1141,7 @@ class Me {
     this.costContainer.appendChild(l);
   }
   setVisible(t) {
-    this.container.style.display = t ? "" : "none";
+    console.log("is visible?:", t), this.container.style.display = t ? "" : "none";
   }
 }
 function Ee(s) {
