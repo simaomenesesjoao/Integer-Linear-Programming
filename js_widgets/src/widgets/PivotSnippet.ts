@@ -118,7 +118,6 @@ export class PivotSnippet {
         cost = new CoordPoint(this.costFunction[0], this.costFunction[1]);
     }
 
-    console.log("PivotSpinnet: ", cost);
     const costArrow = new Arrow(cost, page_to_coord);
     this.app.stage.addChild(costArrow);
 
@@ -126,28 +125,15 @@ export class PivotSnippet {
     const arrows: OrthogonalArrow[] = lineGenerator.getArrows();
     const lineManager: LineManager = lineGenerator.getManager(this.costFunction);
 
-    // const tableauToText = new TableauToText(lineManager.tableau.num_constraints, lineManager.labelToId, lineManager.idToLabel, page_to_window);
-
     const tableauToText = new TableauToText2(this.coordinatesContainer, lineManager.tableau.num_constraints, lineManager.idToLabel);
 
+    tableauToText.setVisible(this.showCoords);
 
     const matrixView = new MatrixView2(this.matrixContainer);
 
     if(this.showMatrix){
         matrixView.draw(lineManager.tableau.matrix, {fontSize: 20 });
-        // matrixView.position = {x: 600, y:100};
-        // this.app.stage.addChild(matrixView);
     }
-
-    // if(this.showCoords){
-    //     this.app.stage.addChild(...tableauToText.dictionaryTexts);
-    //     this.app.stage.addChild(tableauToText.costText);
-    //     this.app.stage.addChild(tableauToText.descriptionText);
-    //     this.app.stage.addChild(tableauToText.warningText);
-    //     this.app.stage.addChild(tableauToText.titleText);
-    // }
-    
-    // tableauToText.pos(new WindowPoint(this.app_width + 50, 50));
 
     for(const line of lines){
         this.app.stage.addChild(line.visual);
@@ -203,8 +189,10 @@ export class PivotSnippet {
             arrows[line].deactivate();
         }
 
-        tableauToText.update(lineManager.tableau);
-        tableauToText.resetWarning();
+        if(this.showCoords){
+            tableauToText.update(lineManager.tableau);
+            tableauToText.resetWarning();
+        }
 
         if(this.showMatrix){
             matrixView.draw(lineManager.tableau.matrix, {fontSize: 20 });
@@ -212,7 +200,9 @@ export class PivotSnippet {
     };
 
     lineManager.onWarning = () => {
-        tableauToText.setWarning();
+        if(this.showCoords){
+            tableauToText.setWarning();
+        }
     };
 
     lineManager.onUpdate();

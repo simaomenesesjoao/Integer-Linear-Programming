@@ -1,7 +1,7 @@
 import * as c from "three";
-import { Controls as Bt, MOUSE as X, Vector3 as j, Vector2 as R, Quaternion as It, MathUtils as vt, Matrix4 as Vt, Object3D as qt } from "three";
-import { Graphics as Z, Text as wt, Application as At } from "pixi.js";
-const pt = { type: "change" }, ft = { type: "start" }, gt = { type: "end" }, Ct = 1e-6, v = { NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM_PAN: 4 }, tt = new R(), U = new R(), Yt = new j(), et = new j(), ut = new j(), q = new It(), Mt = new j(), it = new j(), mt = new j(), st = new j();
+import { Controls as Bt, MOUSE as X, Vector3 as j, Vector2 as R, Quaternion as It, MathUtils as vt, Matrix4 as Ot, Object3D as qt } from "three";
+import { Graphics as Z, Text as _t, Application as At } from "pixi.js";
+const pt = { type: "change" }, ft = { type: "start" }, gt = { type: "end" }, Ct = 1e-6, v = { NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM_PAN: 4 }, tt = new R(), H = new R(), Yt = new j(), et = new j(), ut = new j(), q = new It(), Mt = new j(), it = new j(), mt = new j(), st = new j();
 class Xt extends Bt {
   /**
    * Constructs a new controls instance.
@@ -43,12 +43,12 @@ class Xt extends Bt {
     this.state = v.NONE, this.keyState = v.NONE, this.target.copy(this._target0), this.object.position.copy(this._position0), this.object.up.copy(this._up0), this.object.zoom = this._zoom0, this.object.updateProjectionMatrix(), this._eye.subVectors(this.object.position, this.target), this.object.lookAt(this.target), this.dispatchEvent(pt), this._lastPosition.copy(this.object.position), this._lastZoom = this.object.zoom;
   }
   _panCamera() {
-    if (U.copy(this._panEnd).sub(this._panStart), U.lengthSq()) {
+    if (H.copy(this._panEnd).sub(this._panStart), H.lengthSq()) {
       if (this.object.isOrthographicCamera) {
         const t = (this.object.right - this.object.left) / this.object.zoom / this.domElement.clientWidth, e = (this.object.top - this.object.bottom) / this.object.zoom / this.domElement.clientWidth;
-        U.x *= t, U.y *= e;
+        H.x *= t, H.y *= e;
       }
-      U.multiplyScalar(this._eye.length() * this.panSpeed), et.copy(this._eye).cross(this.object.up).setLength(U.x), et.add(Yt.copy(this.object.up).setLength(U.y)), this.object.position.add(et), this.target.add(et), this.staticMoving ? this._panStart.copy(this._panEnd) : this._panStart.add(U.subVectors(this._panEnd, this._panStart).multiplyScalar(this.dynamicDampingFactor));
+      H.multiplyScalar(this._eye.length() * this.panSpeed), et.copy(this._eye).cross(this.object.up).setLength(H.x), et.add(Yt.copy(this.object.up).setLength(H.y)), this.object.position.add(et), this.target.add(et), this.staticMoving ? this._panStart.copy(this._panEnd) : this._panStart.add(H.subVectors(this._panEnd, this._panStart).multiplyScalar(this.dynamicDampingFactor));
     }
   }
   _rotateCamera() {
@@ -230,7 +230,7 @@ class ce extends qt {
     return super.copy(t, e), this.element = t.element.cloneNode(!0), this.center = t.center, this;
   }
 }
-const Y = new j(), Et = new Vt(), Tt = new Vt(), St = new j(), Pt = new j();
+const Y = new j(), Et = new Ot(), Tt = new Ot(), St = new j(), Pt = new j();
 class le {
   /**
    * Constructs a new CSS2D renderer.
@@ -255,48 +255,48 @@ class le {
     };
     function h(p) {
       p.isCSS2DObject && (p.element.style.display = "none");
-      for (let m = 0, _ = p.children.length; m < _; m++)
+      for (let m = 0, w = p.children.length; m < w; m++)
         h(p.children[m]);
     }
-    function u(p, m, _) {
+    function u(p, m, w) {
       if (p.visible === !1) {
         h(p);
         return;
       }
       if (p.isCSS2DObject) {
         Y.setFromMatrixPosition(p.matrixWorld), Y.applyMatrix4(Tt);
-        const g = Y.z >= -1 && Y.z <= 1 && p.layers.test(_.layers) === !0, y = p.element;
-        y.style.display = g === !0 ? "" : "none", g === !0 && (p.onBeforeRender(e, m, _), y.style.transform = "translate(" + -100 * p.center.x + "%," + -100 * p.center.y + "%)translate(" + (Y.x * n + n) + "px," + (-Y.y * r + r) + "px)", y.parentNode !== l && l.appendChild(y), p.onAfterRender(e, m, _));
+        const g = Y.z >= -1 && Y.z <= 1 && p.layers.test(w.layers) === !0, y = p.element;
+        y.style.display = g === !0 ? "" : "none", g === !0 && (p.onBeforeRender(e, m, w), y.style.transform = "translate(" + -100 * p.center.x + "%," + -100 * p.center.y + "%)translate(" + (Y.x * n + n) + "px," + (-Y.y * r + r) + "px)", y.parentNode !== l && l.appendChild(y), p.onAfterRender(e, m, w));
         const C = {
-          distanceToCameraSquared: d(_, p)
+          distanceToCameraSquared: d(w, p)
         };
         a.objects.set(p, C);
       }
       for (let g = 0, y = p.children.length; g < y; g++)
-        u(p.children[g], m, _);
+        u(p.children[g], m, w);
     }
     function d(p, m) {
       return St.setFromMatrixPosition(p.matrixWorld), Pt.setFromMatrixPosition(m.matrixWorld), St.distanceToSquared(Pt);
     }
-    function w(p) {
+    function _(p) {
       const m = [];
-      return p.traverseVisible(function(_) {
-        _.isCSS2DObject && m.push(_);
+      return p.traverseVisible(function(w) {
+        w.isCSS2DObject && m.push(w);
       }), m;
     }
     function b(p) {
-      const m = w(p).sort(function(g, y) {
+      const m = _(p).sort(function(g, y) {
         if (g.renderOrder !== y.renderOrder)
           return y.renderOrder - g.renderOrder;
         const C = a.objects.get(g).distanceToCameraSquared, M = a.objects.get(y).distanceToCameraSquared;
         return C - M;
-      }), _ = m.length;
+      }), w = m.length;
       for (let g = 0, y = m.length; g < y; g++)
-        m[g].element.style.zIndex = _ - g;
+        m[g].element.style.zIndex = w - g;
     }
   }
 }
-function Ve(s, t, e, i) {
+function Oe(s, t, e, i) {
   const o = document.getElementById(e), n = new le();
   n.setSize(s, t), o.appendChild(n.domElement);
   const r = new c.Scene(), a = new c.PerspectiveCamera(75, s / t, 0.1, 1e3), l = new c.WebGLRenderer({
@@ -349,7 +349,7 @@ function Ve(s, t, e, i) {
     });
     return new c.Mesh(lt, Ut);
   }
-  function w(E, P, L = 16777215) {
+  function _(E, P, L = 16777215) {
     const k = new c.Vector3().subVectors(P, E), rt = k.length(), at = 0.02, K = new c.CylinderGeometry(
       at,
       at,
@@ -373,8 +373,8 @@ function Ve(s, t, e, i) {
     E.position.copy(P);
   }
   let m = b("Start", new c.Vector3(0.3, -0.5, 0));
-  w(new c.Vector3(-2, 0, 0), new c.Vector3(10, 0, 0)), w(new c.Vector3(0, -2, 0), new c.Vector3(0, 10, 0)), w(new c.Vector3(-2, 5, 0), new c.Vector3(5, -2, 0)), w(new c.Vector3(-2, 11, 0), new c.Vector3(11, -2, 0)), w(new c.Vector3(0, 0, -2), new c.Vector3(0, 0, 8));
-  const _ = new c.SphereGeometry(
+  _(new c.Vector3(-2, 0, 0), new c.Vector3(10, 0, 0)), _(new c.Vector3(0, -2, 0), new c.Vector3(0, 10, 0)), _(new c.Vector3(-2, 5, 0), new c.Vector3(5, -2, 0)), _(new c.Vector3(-2, 11, 0), new c.Vector3(11, -2, 0)), _(new c.Vector3(0, 0, -2), new c.Vector3(0, 0, 8));
+  const w = new c.SphereGeometry(
     0.2,
     // radius
     32,
@@ -383,7 +383,7 @@ function Ve(s, t, e, i) {
     // height segments
   ), g = new c.MeshStandardMaterial({
     color: 16776960
-  }), y = new c.Mesh(_, g);
+  }), y = new c.Mesh(w, g);
   y.position.set(0, 0, 0), r.add(y);
   let C = d([
     new c.Vector3(3, 0, 0),
@@ -404,19 +404,19 @@ function Ve(s, t, e, i) {
     new c.Vector3(0, 9, 0),
     new c.Vector3(0, 9, h.z_height),
     new c.Vector3(0, h.a_coef, h.z_height)
-  ]), V = d([
+  ]), O = d([
     new c.Vector3(3, 0, 0),
     new c.Vector3(9, 0, 0),
     new c.Vector3(9, 0, h.z_height),
     new c.Vector3(h.a_coef, 0, h.z_height)
   ]);
-  r.add(S, C, V, f, M);
+  r.add(S, C, O, f, M);
   const z = new c.PointLight(16777215, 20);
   z.position.set(2, 2, 5);
-  const O = new c.AmbientLight(16777215, 0.1);
-  r.add(O), r.add(z), new c.PointLightHelper(z);
-  const H = new c.GridHelper(200, 50);
-  H.rotation.x = Math.PI / 2;
+  const V = new c.AmbientLight(16777215, 0.1);
+  r.add(V), r.add(z), new c.PointLightHelper(z);
+  const W = new c.GridHelper(200, 50);
+  W.rotation.x = Math.PI / 2;
   function B(E, P, L = {}) {
     const k = d(P, L);
     E.geometry.dispose(), E.geometry = k.geometry, E.material.dispose(), E.material = k.material;
@@ -440,7 +440,7 @@ function Ve(s, t, e, i) {
       new c.Vector3(0, 9, P),
       new c.Vector3(0, L, P),
       new c.Vector3(0, L, k)
-    ]), B(V, [
+    ]), B(O, [
       new c.Vector3(3, 0, 0),
       new c.Vector3(9, 0, 0),
       new c.Vector3(9, 0, P),
@@ -466,10 +466,10 @@ function Ve(s, t, e, i) {
       p(m, new c.Vector3(0.3, -0.5, h.a_coef * 3)), y.position.set(0, 0, 3), m.visible = !0;
     }
   }
-  function W() {
-    requestAnimationFrame(W), l.render(r, a), n.render(r, a), D(), u.update();
+  function U() {
+    requestAnimationFrame(U), l.render(r, a), n.render(r, a), D(), u.update();
   }
-  W();
+  U();
 }
 const F = 1e-9;
 function zt(s, t) {
@@ -498,7 +498,7 @@ function de(s, t, e) {
       s[r][l] -= s[t][l] * a;
   }
 }
-function _t(s, t) {
+function wt(s, t) {
   for (let e = 0; e < s.length; e++)
     if (s[e] === t) return e;
 }
@@ -535,7 +535,7 @@ class nt {
   }
   pivot(t, e) {
     de(this.matrix, t, e);
-    const i = this.dictionary[t], o = _t(this.basis, e);
+    const i = this.dictionary[t], o = wt(this.basis, e);
     if (o === void 0)
       throw new Error("Variable not in basis");
     this.basis[o] = i, this.dictionary[t] = e;
@@ -559,7 +559,7 @@ class nt {
     }
   }
   simplex_pivot(t) {
-    if (_t(this.basis, t) === void 0)
+    if (wt(this.basis, t) === void 0)
       throw new Error("Cannot pivot variable not in basis");
     const i = pe(
       this.matrix,
@@ -617,14 +617,14 @@ class nt {
     const i = [];
     for (const r of this.basis)
       ot(r, t, this.num_artificial) || i.push(
-        Ot(r, t, this.num_artificial) ? r - this.num_artificial : r
+        Vt(r, t, this.num_artificial) ? r - this.num_artificial : r
       );
     const o = [];
     for (const r of this.dictionary) {
       if (ot(r, t, this.num_artificial))
         throw new Error("Artificial variable in dictionary");
       o.push(
-        Ot(r, t, this.num_artificial) ? r - this.num_artificial : r
+        Vt(r, t, this.num_artificial) ? r - this.num_artificial : r
       );
     }
     const n = new nt(e, t, this.num_constraints, 0);
@@ -636,7 +636,7 @@ class nt {
       if (this.basis.includes(e))
         t[e] = 0;
       else {
-        const i = _t(this.dictionary, e);
+        const i = wt(this.dictionary, e);
         t[e] = this.matrix[i][this.rhsCol];
       }
     return t;
@@ -656,7 +656,7 @@ function ue(s) {
 function ot(s, t, e) {
   return s >= t && s < t + e;
 }
-function Ot(s, t, e) {
+function Vt(s, t, e) {
   return s >= t + e;
 }
 function me(s) {
@@ -665,7 +665,7 @@ function me(s) {
     s.simplex_pivot(e);
   }
 }
-function _e(s) {
+function we(s) {
   const t = s.get_rhs();
   for (const e of t)
     if (e < -F) throw new Error("Negative RHS");
@@ -678,8 +678,8 @@ function _e(s) {
 function kt(s, t, e) {
   const i = t.length;
   let o = 0, n = 0;
-  for (const w of s) {
-    const b = w.lower, p = w.upper;
+  for (const _ of s) {
+    const b = _.lower, p = _.upper;
     b !== void 0 && (o++, b > F && n++), p !== void 0 && (o++, p < -F && n++);
   }
   e || (n = 0);
@@ -688,33 +688,33 @@ function kt(s, t, e) {
     () => new Array(a).fill(0)
   );
   let u = 0, d = 0;
-  for (const w of s) {
-    const b = w.lower, p = w.row, m = w.upper;
+  for (const _ of s) {
+    const b = _.lower, p = _.row, m = _.upper;
     if (b !== void 0) {
-      for (let _ = 0; _ < i; _++)
-        h[u][_] = -p[_];
+      for (let w = 0; w < i; w++)
+        h[u][w] = -p[w];
       if (h[u][i + n + u] = 1, h[u][l] = -b, b > F) {
         e && (h[u][i + d] = -1, d++);
-        for (let _ = 0; _ < a; _++)
-          h[u][_] *= -1;
+        for (let w = 0; w < a; w++)
+          h[u][w] *= -1;
       }
       u++;
     }
     if (m !== void 0) {
-      for (let _ = 0; _ < i; _++)
-        h[u][_] = p[_];
+      for (let w = 0; w < i; w++)
+        h[u][w] = p[w];
       if (h[u][i + n + u] = 1, h[u][l] = m, m < -F) {
         e && (h[u][i + d] = -1, d++);
-        for (let _ = 0; _ < a; _++)
-          h[u][_] *= -1;
+        for (let w = 0; w < a; w++)
+          h[u][w] *= -1;
       }
       u++;
     }
   }
-  for (let w = 0; w < i; w++)
-    h[o][w] = t[w];
-  for (let w = 0; w < n; w++)
-    h[o + 1][i + w] = -1;
+  for (let _ = 0; _ < i; _++)
+    h[o][_] = t[_];
+  for (let _ = 0; _ < n; _++)
+    h[o + 1][i + _] = -1;
   return new nt(
     h,
     i,
@@ -722,7 +722,7 @@ function kt(s, t, e) {
     n
   );
 }
-const A = 1e-7, we = 16544547;
+const A = 1e-7, _e = 16544547;
 class yt {
   x;
   y;
@@ -787,8 +787,8 @@ function ye(s, t, e, i) {
   else if (Math.abs(t) < A)
     l = new x(-e / s, r), h = new x(-e / s, a);
   else {
-    const u = -(e + t * r) / s, d = -(e + t * a) / s, w = -(e + s * o) / t, b = -(e + s * n) / t;
-    u >= o && u <= n ? l = new x(u, r) : u < o ? l = new x(o, w) : l = new x(n, b), d >= o && d <= n ? h = new x(d, a) : d < o ? h = new x(o, w) : h = new x(n, b);
+    const u = -(e + t * r) / s, d = -(e + t * a) / s, _ = -(e + s * o) / t, b = -(e + s * n) / t;
+    u >= o && u <= n ? l = new x(u, r) : u < o ? l = new x(o, _) : l = new x(n, b), d >= o && d <= n ? h = new x(d, a) : d < o ? h = new x(o, _) : h = new x(n, b);
   }
   return { p1: l, p2: h };
 }
@@ -847,9 +847,9 @@ class Rt extends Z {
   converter;
   constructor(t, e, i, o) {
     super(), this.botLeft = t, this.topRight = e, this.delta = i, this.converter = o;
-    let n = t.x, r = e.x, a = t.y, l = e.y, h = Math.trunc(n / i), u = Math.trunc(r / i), d = Math.trunc(a / i), w = Math.trunc(l / i), b = Math.abs(Math.round(n / i) - n / i) < A, p = Math.abs(Math.round(r / i) - r / i) < A, m = Math.abs(Math.round(a / i) - a / i) < A, _ = Math.abs(Math.round(l / i) - l / i) < A;
-    for (let g = d; g <= w; g++) {
-      if (g == d && m || g == w && _)
+    let n = t.x, r = e.x, a = t.y, l = e.y, h = Math.trunc(n / i), u = Math.trunc(r / i), d = Math.trunc(a / i), _ = Math.trunc(l / i), b = Math.abs(Math.round(n / i) - n / i) < A, p = Math.abs(Math.round(r / i) - r / i) < A, m = Math.abs(Math.round(a / i) - a / i) < A, w = Math.abs(Math.round(l / i) - l / i) < A;
+    for (let g = d; g <= _; g++) {
+      if (g == d && m || g == _ && w)
         continue;
       let y = g * this.delta;
       const C = this.converter.to_page(new x(n, y)), M = this.converter.to_page(new x(r, y));
@@ -913,7 +913,7 @@ class xe extends Z {
   lscale;
   eq;
   constructor(t, e, i, o, n, r) {
-    super(), this.eq = t, this.p1 = e, this.p2 = i, this.limits = o, this.id = n, this.converter = r, this.visible = !1, this.lscale = Math.sqrt(t.a * t.a + t.b * t.b), this.lab = new wt({
+    super(), this.eq = t, this.p1 = e, this.p2 = i, this.limits = o, this.id = n, this.converter = r, this.visible = !1, this.lscale = Math.sqrt(t.a * t.a + t.b * t.b), this.lab = new _t({
       style: {
         fill: "#000000",
         fontSize: 16,
@@ -941,19 +941,19 @@ class xe extends Z {
     let a = e.subtract(t);
     const l = Math.sqrt(a.x * a.x + a.y * a.y);
     a = a.scale(1 / l);
-    const h = t, u = new x(i, r), d = new x(o, r), w = new x(o, n), b = new x(i, n), p = [
+    const h = t, u = new x(i, r), d = new x(o, r), _ = new x(o, n), b = new x(i, n), p = [
       Q(h, a, this.p1, this.p2),
       Q(h, a, u, d),
-      Q(h, a, d, w),
-      Q(h, a, w, b),
+      Q(h, a, d, _),
+      Q(h, a, _, b),
       Q(h, a, b, u)
-    ], m = p.reduce((S, f, V) => f.t < 0 ? S : S === -1 || p[S].t < 0 || f.t < p[S].t ? V : S, -1), _ = this.converter.to_page(t), g = this.converter.to_page(p[m].p);
-    this.clear(), this.moveTo(_.x, _.y).lineTo(g.x, g.y), m === 0 && Ft(this, g, _), this.stroke({
+    ], m = p.reduce((S, f, O) => f.t < 0 ? S : S === -1 || p[S].t < 0 || f.t < p[S].t ? O : S, -1), w = this.converter.to_page(t), g = this.converter.to_page(p[m].p);
+    this.clear(), this.moveTo(w.x, w.y).lineTo(g.x, g.y), m === 0 && Ft(this, g, w), this.stroke({
       width: 1,
       color: 3355443
     });
     const y = t.subtract(e), C = y.dot(new x(this.eq.a, this.eq.b)) > 0 ? -1 : 1, M = Math.sqrt(y.x * y.x + y.y * y.y) * this.lscale * C;
-    this.lab.text = this.id + "=" + M.toFixed(1), this.lab.x = (_.x + g.x) * 0.5, this.lab.y = (_.y + g.y) * 0.5;
+    this.lab.text = this.id + "=" + M.toFixed(1), this.lab.x = (w.x + g.x) * 0.5, this.lab.y = (w.y + g.y) * 0.5;
   }
 }
 class ve {
@@ -962,7 +962,7 @@ class ve {
   lit = !1;
   hit = new Z();
   visual = new Z();
-  labelText = new wt();
+  labelText = new _t();
   p1_page;
   p2_page;
   p1;
@@ -972,7 +972,7 @@ class ve {
   onMouseMove = null;
   constructor(t, e, i, o) {
     let n = ye(e.a, e.b, e.d, t);
-    this.p1_page = i.to_page(n.p1), this.p2_page = i.to_page(n.p2), this.p1 = n.p1, this.p2 = n.p2, this.id = o, this.labelText = new wt({
+    this.p1_page = i.to_page(n.p1), this.p2_page = i.to_page(n.p2), this.p1 = n.p1, this.p2 = n.p2, this.id = o, this.labelText = new _t({
       text: o,
       style: {
         fill: "#000000",
@@ -1023,7 +1023,7 @@ class ve {
     const t = this.lit || this.active;
     this.visual.clear(), this.visual.moveTo(this.p1_page.x, this.p1_page.y).lineTo(this.p2_page.x, this.p2_page.y).stroke({
       width: t ? 5 : 3,
-      color: t ? we : 0
+      color: t ? _e : 0
     });
   }
 }
@@ -1107,8 +1107,8 @@ class Me {
     for (let h = 0; h < r; h++) {
       const u = o[h], d = this.idToLabel.get(u), b = e[h][u] > 0 ? 1 : -1, p = (b * e[h][n]).toFixed(1), m = document.createElement("div");
       m.className = "Trow", m.append(`${d} = ${p}`);
-      for (const _ of i) {
-        const g = this.idToLabel.get(_), y = -e[h][_] * b;
+      for (const w of i) {
+        const g = this.idToLabel.get(w), y = -e[h][w] * b;
         if (Math.abs(y) < A) continue;
         const C = y > 0 ? "+" : "-", M = Math.abs(y), S = Math.abs(M - 1) < A ? "" : M.toFixed(1);
         m.append(` ${C} ${S}`);
@@ -1133,12 +1133,15 @@ class Me {
     for (const h of i) {
       const u = this.idToLabel.get(h), d = e[n][h];
       if (Math.abs(d) < A) continue;
-      const w = d > 0 ? "+" : "-", b = Math.abs(d), p = Math.abs(b - 1) < A ? "" : b.toFixed(1);
-      l.append(` ${w} ${p}`);
+      const _ = d > 0 ? "+" : "-", b = Math.abs(d), p = Math.abs(b - 1) < A ? "" : b.toFixed(1);
+      l.append(` ${_} ${p}`);
       const m = document.createElement("span");
       m.className = "highlight", m.textContent = u, l.append(m);
     }
     this.costContainer.appendChild(l);
+  }
+  setVisible(t) {
+    this.container.style.display = t ? "" : "none";
   }
 }
 function Ee(s) {
@@ -1211,7 +1214,7 @@ function Wt(s, t) {
   const i = [];
   i.push(0), i.push(0);
   let o = kt(e, i, !0);
-  me(o), _e(o);
+  me(o), we(o);
   const n = o.trim_tableau(), r = [];
   for (let d = 0; d < o.rhsCol; d++)
     r.push(!1);
@@ -1220,8 +1223,8 @@ function Wt(s, t) {
   const u = n.extract_coordinates();
   a.push(new x(u[0], u[1])), r[l] = !0;
   for (let d = 0; d < 99; d++) {
-    let w = n.simplex_pivot(l);
-    l = h, h = w;
+    let _ = n.simplex_pivot(l);
+    l = h, h = _;
     const b = n.extract_coordinates();
     if (a.push(new x(b[0], b[1])), r[l])
       break;
@@ -1272,8 +1275,8 @@ class Se {
     for (let h = 0; h < l; h++) {
       const u = document.createElement("tr");
       for (let d = 0; d < t[h].length; d++) {
-        const w = document.createElement("td");
-        w.textContent = String(t[h][d]), u.appendChild(w);
+        const _ = document.createElement("td");
+        _.textContent = String(t[h][d]), u.appendChild(_);
       }
       a.appendChild(u);
     }
@@ -1304,64 +1307,66 @@ class Ae {
       backgroundAlpha: 0,
       antialias: !0
     }), this.container.appendChild(this.app.canvas);
-    const t = new bt(0, this.app_width), e = new Dt(t), i = new G(0, 0), o = new G(this.app_width, this.app_width), n = new x(this.topRightCoord.x, this.topRightCoord.y), r = new x(this.botLeftCoord.x, this.botLeftCoord.y), a = { xmin: r.x, xmax: n.x, ymin: r.y, ymax: n.y }, l = (a.xmin + a.xmax) * 0.5, h = (a.ymin + a.ymax) * 0.5, u = new jt(i, o, r, n), d = new Nt(u, e), w = e.to_page(i), b = e.to_page(o), p = new Z().rect(w.x, b.y, b.x - w.x, w.y - b.y).fill({
+    const t = new bt(0, this.app_width), e = new Dt(t), i = new G(0, 0), o = new G(this.app_width, this.app_width), n = new x(this.topRightCoord.x, this.topRightCoord.y), r = new x(this.botLeftCoord.x, this.botLeftCoord.y), a = { xmin: r.x, xmax: n.x, ymin: r.y, ymax: n.y }, l = (a.xmin + a.xmax) * 0.5, h = (a.ymin + a.ymax) * 0.5, u = new jt(i, o, r, n), d = new Nt(u, e), _ = e.to_page(i), b = e.to_page(o), p = new Z().rect(_.x, b.y, b.x - _.x, _.y - b.y).fill({
       color: 15658734,
       alpha: 0.8
     });
     this.app.stage.addChild(p);
     let m = new Rt(r, n, 1, d);
     this.app.stage.addChild(m);
-    const _ = this.constraints, y = Wt(_, a).flatMap((T) => {
+    const w = this.constraints, y = Wt(w, a).flatMap((T) => {
       const D = d.to_page(T);
       return [D.x, D.y];
     }), C = new Z();
     C.beginFill(3381759, 0.2), C.drawPolygon(y), C.endFill(), this.app.stage.addChild(C);
     const M = new Zt(a, d);
-    for (const T of _)
+    for (const T of w)
       M.addLine(T);
     let S = new x(0, 0);
-    this.costFunction !== void 0 && (S = new x(this.costFunction[0], this.costFunction[1])), console.log("PivotSpinnet: ", S);
+    this.costFunction !== void 0 && (S = new x(this.costFunction[0], this.costFunction[1]));
     const f = new be(S, d);
     this.app.stage.addChild(f);
-    const V = M.getLines(), z = M.getArrows(), O = M.getManager(this.costFunction), H = new Me(this.coordinatesContainer, O.tableau.num_constraints, O.idToLabel), B = new Se(this.matrixContainer);
-    this.showMatrix && B.draw(O.tableau.matrix, { fontSize: 20 });
-    for (const T of V)
+    const O = M.getLines(), z = M.getArrows(), V = M.getManager(this.costFunction), W = new Me(this.coordinatesContainer, V.tableau.num_constraints, V.idToLabel);
+    W.setVisible(this.showCoords);
+    const B = new Se(this.matrixContainer);
+    this.showMatrix && B.draw(V.tableau.matrix, { fontSize: 20 });
+    for (const T of O)
       this.app.stage.addChild(T.visual), this.app.stage.addChild(T.labelText);
-    for (const T of V)
+    for (const T of O)
       this.app.stage.addChild(T.hit);
     this.app.stage.addChild(...z);
     for (const T of z)
       this.app.stage.addChild(T.lab);
     let N = d.to_page(new x(l, h));
-    for (const T of V)
+    for (const T of O)
       T.onClick = () => {
-        console.log("Clicked"), O.update(T.id, T.active);
+        console.log("Clicked"), V.update(T.id, T.active);
       }, T.onMouseMove = (D) => {
-        const W = D.global;
-        N.x = W.x, N.y = W.y;
+        const U = D.global;
+        N.x = U.x, N.y = U.y;
         const E = d.to_coord(N);
         for (const P of z)
           P.update(E);
         f.update(E);
       };
-    O.onUpdate = () => {
-      console.log("coordinates:", O.tableau.extract_coordinates());
+    V.onUpdate = () => {
+      console.log("coordinates:", V.tableau.extract_coordinates());
       const T = d.to_coord(N);
-      for (const D of O.activeLines())
-        V[D].activate(), z[D].activate(), z[D].update(T);
+      for (const D of V.activeLines())
+        O[D].activate(), z[D].activate(), z[D].update(T);
       f.update(T);
-      for (const D of O.inactiveLines())
-        V[D].deactivate(), z[D].deactivate();
-      H.update(O.tableau), H.resetWarning(), this.showMatrix && B.draw(O.tableau.matrix, { fontSize: 20 });
-    }, O.onWarning = () => {
-      H.setWarning();
-    }, O.onUpdate(), p.eventMode = "static", p.on("pointermove", (T) => {
+      for (const D of V.inactiveLines())
+        O[D].deactivate(), z[D].deactivate();
+      this.showCoords && (W.update(V.tableau), W.resetWarning()), this.showMatrix && B.draw(V.tableau.matrix, { fontSize: 20 });
+    }, V.onWarning = () => {
+      this.showCoords && W.setWarning();
+    }, V.onUpdate(), p.eventMode = "static", p.on("pointermove", (T) => {
       const D = T.global;
       N.x = D.x, N.y = D.y;
-      const W = d.to_coord(N);
+      const U = d.to_coord(N);
       for (const E of z)
-        E.update(W);
-      f.update(W);
+        E.update(U);
+      f.update(U);
     });
   }
   destroy() {
@@ -1390,13 +1395,13 @@ class ze {
       backgroundAlpha: 0,
       antialias: !0
     }), this.container.appendChild(this.app.canvas);
-    const t = new bt(0, this.app_width), e = new Dt(t), i = new G(0, 0), o = new G(this.app_width, this.app_width), n = new x(this.topRightCoord.x, this.topRightCoord.y), r = new x(this.botLeftCoord.x, this.botLeftCoord.y), a = { xmin: r.x, xmax: n.x, ymin: r.y, ymax: n.y }, l = (a.xmin + a.xmax) * 0.5, h = (a.ymin + a.ymax) * 0.5, u = new jt(i, o, r, n), d = new Nt(u, e), w = e.to_page(i), b = e.to_page(o), p = new Z().rect(w.x, b.y, b.x - w.x, w.y - b.y).fill({
+    const t = new bt(0, this.app_width), e = new Dt(t), i = new G(0, 0), o = new G(this.app_width, this.app_width), n = new x(this.topRightCoord.x, this.topRightCoord.y), r = new x(this.botLeftCoord.x, this.botLeftCoord.y), a = { xmin: r.x, xmax: n.x, ymin: r.y, ymax: n.y }, l = (a.xmin + a.xmax) * 0.5, h = (a.ymin + a.ymax) * 0.5, u = new jt(i, o, r, n), d = new Nt(u, e), _ = e.to_page(i), b = e.to_page(o), p = new Z().rect(_.x, b.y, b.x - _.x, _.y - b.y).fill({
       color: 15658734,
       alpha: 0.8
     });
     this.app.stage.addChild(p);
-    const m = Wt(this.constraints, a), _ = new Te(m, d);
-    this.include_polygon && this.app.stage.addChild(_);
+    const m = Wt(this.constraints, a), w = new Te(m, d);
+    this.include_polygon && this.app.stage.addChild(w);
     let g = new Rt(r, n, 1, d);
     this.app.stage.addChild(g);
     const y = new Zt(a, d);
@@ -1415,28 +1420,28 @@ class ze {
         M[f].toggleActivate(), C[f].toggleActivate();
       });
     for (let f = 0; f < C.length; f++)
-      C[f].onMouseMove = (V) => {
-        const z = V.global;
+      C[f].onMouseMove = (O) => {
+        const z = O.global;
         S.x = z.x, S.y = z.y;
-        const O = d.to_coord(S);
-        for (const H of M)
-          H.update(O);
+        const V = d.to_coord(S);
+        for (const W of M)
+          W.update(V);
       };
     for (let f = 0; f < C.length; f++)
       this.active_lines.includes(f) && (M[f].activate(), C[f].activate());
     let S = d.to_page(new x(l, h));
     p.eventMode = "static", p.on("pointermove", (f) => {
-      const V = f.global;
-      S.x = V.x, S.y = V.y;
+      const O = f.global;
+      S.x = O.x, S.y = O.y;
       const z = d.to_coord(S);
-      for (const O of M)
-        O.update(z);
-    }), this.include_polygon && (_.onMove = (f) => {
-      const V = f.global;
-      S.x = V.x, S.y = V.y;
+      for (const V of M)
+        V.update(z);
+    }), this.include_polygon && (w.onMove = (f) => {
+      const O = f.global;
+      S.x = O.x, S.y = O.y;
       const z = d.to_coord(S);
-      for (const O of M)
-        O.update(z);
+      for (const V of M)
+        V.update(z);
     });
   }
   destroy() {
@@ -1447,5 +1452,5 @@ export {
   Lt as Constraint,
   Ae as PivotSnippet,
   ze as SlackSnippet,
-  Ve as init3D
+  Oe as init3D
 };

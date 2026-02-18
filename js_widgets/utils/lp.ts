@@ -884,7 +884,7 @@ export class TableauToText2 {
   private warningText: HTMLElement;
   private titleText: HTMLElement;
 
-  private idToLabel: Map<number, String>;
+  private idToLabel: Map<number,String>;
   private numSlacks: number;
 
   constructor(
@@ -1025,6 +1025,12 @@ export class TableauToText2 {
 
     this.costContainer.appendChild(row);
   }
+
+  setVisible(visible: boolean) {
+    console.log("is visible?:", visible);
+    this.container.style.display = visible ? "" : "none";
+  }
+
 }
 
 
