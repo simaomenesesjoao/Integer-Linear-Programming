@@ -12,6 +12,8 @@
 <section class="section-block">
 <h2>4. The Simplex method</h2>
 Now that we know how to move along boundary vertices, let's see how this can help us find the solution to Linear Programming problems. 
+</section>
+<section class="section-block">
 
 <h3>Steering the pivot</h3>
 
@@ -105,8 +107,10 @@ An easy way to make this equation valid for non-negative $s_1$ is to add an addi
 
 Now, it's trivial to find a boundary point of this extended problem. Setting the original Cartesian coordinates $(x, y)$ to zero and $z=3$ to match the RHS, we find that $s_1=0$ and $s_2=9$. In sum, we have managed to set three slack variables to zero ($x$, $y$, $s_1$) while the remaining ones are positive ($s_2=9$)! This means that we have in fact found a boundary vertex of this higher-dimensional geometry! The original bounded region is now a facet of this 3D polyhedron, which is also convex. The interactive animation below shows this:<br><br>
 
-<div id="three-container">
-  <canvas id="bg"></canvas>
+<div class="widget_container">
+  <div id="three-container">
+    <canvas id="bg"></canvas>
+  </div>
 </div>
 
 From this point, we just need to pivot from the initial basis $(x,y,z)$ into the new basis $(x,y,s_1)$ and then pivot along its edges until we find a vertex such that $z=0$. Then, we will have found a boundary vertex of the original bounded region. In order to figure out which variables to pivot into, we can simply choose the pivots that <b>minimize</b> $z$. This is effectively done by maximizing the cost function $I=-z$.

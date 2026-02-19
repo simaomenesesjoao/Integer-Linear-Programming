@@ -310,9 +310,27 @@ export function init3D(width: number, height: number, containerSelector: string,
       new THREE.Vector3(p, 0, z2),
     ]);
   }
+  
+  function resetSimulation() {
+    state.camera_tilt = 0.0;
+    state.z_height = 0.0;
+    state.a_coef = 0.0;
+
+    camera.position.set(0, 0, 15);
+    camera.lookAt(0, 0, 0);
+
+    label.visible = true;
+    updateLabelPosition(label, new THREE.Vector3(0.3, -0.5, 0));
+
+    sphere.position.set(0, 0, 0);
+
+    update_polygons(0, 0);
+
+    delay = 100;
+  }
 
   let delay = 100
-  function update_simulation(time){
+  function update_simulation(){
     delay -= 1;
     if(delay >= 0){
       return;
@@ -324,7 +342,7 @@ export function init3D(width: number, height: number, containerSelector: string,
       camera.position.z -= 0.07;
       state.camera_tilt += 0.01; 
       return;
-  }
+    }
 
     if(state.z_height <= 7.0) {
       label.visible = false;
@@ -350,18 +368,18 @@ export function init3D(width: number, height: number, containerSelector: string,
     updateLabelPosition(label, new THREE.Vector3(0.3, -0.5, state.a_coef*3));
     sphere.position.set(0,0,3);
     label.visible = true;
-    
+
+    if (state.a_coef > 1.0) {
+      delay = 200; // optional pause before restart
+      resetSimulation();
+    }
   }
 
-
-  let time = 0.0;
   function animate() {
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
     labelRenderer.render(scene, camera);
-
-    time += 0.01;
-    update_simulation(time);
+    update_simulation();
     controls.update();
   }
 
