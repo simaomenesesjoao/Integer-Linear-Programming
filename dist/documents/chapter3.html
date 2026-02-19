@@ -10,213 +10,223 @@
 <div class="content">
 
 <section class="section-block">
-<h2>2. Pivoting</h2>
-<p>As mentioned above, a Linear Programming problem consists of a set of constraints and an objective (cost) function. The Simplex Method relies on pivoting across boundary vertices of the feasible region. The first step to understand how the Simplex Method is implemented is to realize that the constraints give rise to natural coordinate systems.</p>
+<h2>3. Pivoting with matrices</h2> 
+<p>In practice, an efficient Linear Programming solver would use matrices internally, in order to make use of vectorized operations and data locality. In this section, we'll see how to express the process of pivoting explained previously using matrices.</p>
 </section>
 
 <section class="section-block">
-<h3>Coordinate Systems</h3>
-
-<p>Let's start with an example. In 3D, the inequality $x-2y+z \leq 3$ separates 3D space into two regions with the plane $x-2y+z = 3$. We can define a "signed distance" to this plane to measure whether or not this constraint is being satisfied, and determine whether a point lies on that plane. Define the new variable $s$ by adding it to the equation $x-2y+z+s = 3$. If $s\gt0$, then all the points satisfying $x-2y+z+s=3$ will lie parallel to the plane, and will all satisfy the inequality. If $s \leq 0$, they would still be parallel, but the inequality will not be satisfied. If $s=0$, the inequality is strictly satisfied (the point $(x,y,z)$ lies on that plane). This type of variable is called a <b>slack</b> variable. Note that the word “distance” is under quotes because $s$ does not represent the real Cartesian distance to the plane, but is proportional to it, and its sign tells us which side of the constraint we're on.</p>
-
-<p>As an example, in 2D, the constraint $2x+3y\leq15$ can be parametrized by using the slack variable $s$ as $2x + 3y + s = 15$. The constraint being satisfied is equivalent to $s\geq0$. In the snippet below, you can see this in action: as you move the mouse around, the slack variable $s$ will tell you how far away the mouse location is from satisfying the constraint. When $s$ is positive, the mouse is located in a region that satisfies the constraint.</p>
-
-<div class="widget_container"> 
-  <div id="slack1" class="js_widget"></div>
-</div>
-
-<p>Things get a lot more interesting when several constraints are at play. For example, consider the following inequalities in 2D</p>
-
+<h3>Matrix Formulation</h3> 
+Let's again look at the original equations.<br>
 <script type="math/tex; mode=display">
 \begin{aligned}
- 2x + y  &\le 11 \\
- x - 3y  &\le 2
+ -y      + s_1 &= -1 \\
+ -x      + s_2 &= -1 \\
+ y - x   + s_3 &=  4 \\
+ -x - y  + s_4 &= -3
 \end{aligned}
 </script>
-
-<p>Just like before, each inequality defines its own plane. Defining a slack variable for each inequality, we are able to measure how far away we are from satisfying each constraint:</p>
-
+In matrix form, we have the equivalent formulation as a matrix equation
+<div class="small-math">
 <script type="math/tex; mode=display">
-\begin{aligned}
- 2x + y + s_1 &= 11 \\
- x - 3y + s_2 &= 2
-\end{aligned}
-</script>
-
-<p>This can be seen in the snippet below. Click on the lines to isolate each variable.</p>
-
-
-<div class="widget_container"> 
-  <div id="slack2" class="js_widget"></div>
-</div>
-
-<p>Considering this is a 2D setting, setting the two slack variables to zero will yield a system of equations that provides the intersection point once solved (assuming the lines are not parallel). The solution in this case is $(x,y) =(5, 1)$. More generally, the variables $s_1$ and $s_2$ are able to describe any point in the plane - they form a (not necessarily orthogonal) <b>coordinate system</b>. Importantly, when $s_1$ and $s_2$ are non-negative, they always yield points that satisfy the corresponding inequalities! <b>Slack variables provide a convenient way to parametrize regions bounded by inequalities!</b> To do this more generally in $N$ dimensions, we just need $N$ inequalities that contain no parallel hyperplanes.</p>
-
-</section>
-
-<section class="section-block">
-<h3>Changing coordinate systems</h3>
-<p>Now let's see how coordinate systems defined by slack variables provide a natural way to move along edges. Consider the system of four inequalities</p>
+\left[\begin{array}{cccccc}
+0 & -1 & 1 & 0 & 0 & 0\\
+-1 & 0 & 0 & 1 & 0 & 0\\
+-1 & 1 & 0 & 0 & 1 & 0\\
+-1 & -1 & 0 & 0 & 0 & 1
+\end{array}\right]\left(\begin{array}{c}
+x\\
+y\\
+s_{1}\\
+s_{2}\\
+s_{3}\\
+s_{4}
+\end{array}\right)=\left(\begin{array}{c}
+-1\\
+-1\\
+4\\
+-3
+\end{array}\right)</script></div>
+More conveniently, considering we don't actually care about individual names of the variables and will need to operate on both sides of the equation simultaneously anyway, we can append the right-hand side to the matrix:
 <script type="math/tex; mode=display">
-\begin{aligned}
- y     &\ge 1 \\
- x     &\ge 1 \\
- y - x &\le 4 \\
- x + y &\ge 3
-\end{aligned}
-</script>
-
-<p>which describes the following unbounded region in the plane.</p>
-
-
-<div class="widget_container"> 
-  <div id="slack3" class="js_widget"></div>
-</div>
-
-To use slack variables, start by expressing the inequalities using $\leq$ signs, so that slack variables can retain the same interpretation as before.<br>
-<script type="math/tex; mode=display">
-\begin{aligned}
- -y     &\le -1 \\
- -x     &\le -1 \\
- y - x  &\le 4 \\
- -x - y &\le -3
-\end{aligned}
-</script>
-
-
-Let's represent the constraints using slack variables:<br>
-<script type="math/tex; mode=display">
-\begin{aligned}
- -y     + s_1 &= -1 \\
- -x     + s_2 &= -1 \\
- y - x  + s_3 &=  4 \\
- -x - y + s_4 &= -3
-\end{aligned}
-</script>
-
-
-It's relevant to note that, even though it's not made explicit, the cartesian variables $x$ and $y$ also act as slack variables for the implicit constraints $x\geq0$ and $y\geq0$, putting them on equal footing to every other slack variable. <br><br>
-
-Let's start by building a coordinate system out of the 1st and 4th equations. Rearranging, these equations give us the transformation law between the $(x,y)$ coordinate system and the $(s_1, s_4)$ coordinate system.<br>
-
-<script type="math/tex; mode=display">
-\begin{aligned}
- s_1 &= y - 1 \\
- s_4 &= x + y - 3
-\end{aligned}
-</script>
-
-and vice versa:<br>
-
-<script type="math/tex; mode=display">
-\begin{aligned}
- x &= s_4 - s_1 + 2 \\
- y &= s_1 + 1
-\end{aligned}
-</script>
-
-
-Setting $s_1=s_4=0$ reveals the origin of that coordinate system in the $(x,y)$ coordinate system, that is, $(x,y)=(2,1)$. To change coordinates from $(x,y)$ to $(s_1, s_4)$, express everything in terms of $s_1$ and $s_4$:<br>
-<script type="math/tex; mode=display">
-\begin{aligned}
- y     &= s_1 + 1 \\
- s_2   &= s_4 - s_1 + 1 \\
- s_3   &= s_4 - 2s_1 + 5 \\
- x     &= s_4 - s_1 + 2
-\end{aligned}
-</script>
-
-We have now successfully described the variables $x,y,s_2,s_3$  in terms of $s_1,s_4$. It can be seen as a <b>dictionary</b> between the <b>basis variables</b> (also called basic variables) and the <b>non-basis</b> (or non-basic) variables. Note that the origin of this new coordinate system is a boundary vertex of the feasible region and thus satisfies all the inequalities. To see this, just set $s_1=s_4=0$ in the equations above to see that all the remaining slack variables are positive, meaning that the inequalities are satisfied:<br>
-
-<script type="math/tex; mode=display">
-\begin{aligned}
- y   &= 1 \\
- s_2 &= 1 \\
- s_3 &= 5 \\
- x   &= 2
-\end{aligned}
-</script>
-
-
-Visually, the region looks like this now, under the new coordinate system:
-
-
-<div class="widget_container"> 
-  <div id="slack4" class="js_widget"></div>
-</div>
-
-<p>Remember that the origin of this new reference frame comes from the intersection of the lines defined by $s_1=s_4=0$. </p>
+  \left[\begin{array}{ccccccccc}
+0 & -1 & 1 & 0 & 0 & 0 & \vdots & -1\\
+-1 & 0 & 0 & 1 & 0 & 0 & \vdots & -1\\
+-1 & 1 & 0 & 0 & 1 & 0 & \vdots & 4\\
+-1 & -1 & 0 & 0 & 0 & 1 & \vdots & -3
+\end{array}\right]</script>
+<p>where separators were added to make this distinction clearer. For bookkeeping, let's keep track of the basis variables ($x$, $y$) and the dictionary relating the matrix rows to the slack variable it is defining. In this case, by order of increasing row, it is ($s_1$, $s_2$, $s_3$, $s_4$), that is row 1 represents $s_1$, row 2 represents $s_2$ and so on.</p>
 
 </section>
 
 <section class="section-block">
-<h3>Moving along boundary vertices - pivoting</h3>
+<h3>Moving into other vertices</h3>
 
-Now we can start asking the more interesting question: What if we want to move along from this vertex to the next one? How do I ensure that it's still a boundary vertex? <br><br>
-
-First, we need to reflect on what it means to move along an edge from one vertex to another. This vertex is simply the intersection of two lines (defined by $s_1, s_4$). If we move along the edge defined by $s_1$, we remain at $s_1=0$ but are allowed to modify $s_4$. Decreasing $s_4$ from that vertex would make it negative, so we need to increase it. Let's increase $s_4$ as much as we can until another slack variable (say, $s_2$) assumes the value zero. That's as far as we can go without making any other slack variable negative. Then, we know that we reached a new vertex because it results from the intersection of two lines (two slack variables zero). More so, in virtue of having moved along an edge and keeping all slack variables positive, we know that this is also a boundary vertex. Let's look back at our equations and see this in action. <br>
-
+Right now, everything is still expressed in the $(x,y)$ coordinate system. Let's now swap out $x$ (column 1) with $s_4$  (row 4), meaning we eliminate $x$ from all the other rows, and set its coefficient in row 4 to one.
 <script type="math/tex; mode=display">
-\begin{aligned}
- y     &= s_1 + 1 \\
- s_2   &= s_4 - s_1 + 1 \\
- s_3   &= s_4 - 2s_1 + 5 \\
- x     &= s_4 - s_1 + 2
-\end{aligned}
+  \left[\begin{array}{ccccccccc}
+0 & -1 & 1 & 0 & 0 & 0 & \vdots & -1\\
+0 & 1 & 0 & 1 & 0 & -1 & \vdots & 2\\
+0 & 2 & 0 & 0 & 1 & -1 & \vdots & 7\\
+1 & 1 & 0 & 0 & 0 & -1 & \vdots & 3
+\end{array}\right]
 </script>
+The basis variables are now ($s_4$, $y$) and the dictionary is ($s_1$, $s_2$, $s_3$, $x$). This process is just Gaussian elimination, and here's a code snippet to do it:
+<pre><code class="language-cpp">using Matrix = Eigen::MatrixXd;
 
-Starting from the coordinate system's origin ($s_1=s_4=0$), let's try to move along the $s_1$ edge while increasing $s_4$. What other slack variable can we set to zero as $s_4$ is increased? There are several options. In the snippet below, you can hover the mouse along the $s_1=0$ line and visually identify what lines it intersects. Clicking on each line toggles the corresponding slack variable, so you can see when it becomes zero. It includes $x$ and $y$ as slack variables to make it clearer that they are variables to consider.<br><br>
+void gaussian_elimination(Matrix& matrix, unsigned int row, unsigned int col){
+    double entry = matrix(row, col);
 
+    // Gaussian elimination cannot be done on a zero entry
+    assert(!is_equal(entry, 0));
+    assert(row &lt; matrix.rows());
+    assert(col &lt; matrix.cols());
 
+    matrix.row(row) /= entry;
 
-<div class="widget_container"> 
-  <div id="slack5" class="js_widget"></div>
-</div>
+    for(unsigned int i=0; i&lt;matrix.rows(); i++){
+        if(i == row){
+            continue;
+        }
+        matrix.row(i) -= matrix.row(row)*matrix(i, col);
+    }
+}
+</code></pre>
+Changing coordinate systems is as simple as doing one sweep of Gaussian elimination.<br><br>
+Now do the same to eliminate $y$  in favor of $s_1$ (row 1)
+<script type="math/tex; mode=display">
+\left[\begin{array}{ccccccccc}
+0 & 1 & -1 & 0 & 0 & 0 & \vdots & 1\\
+0 & 0 & 1 & 1 & 0 & -1 & \vdots & 1\\
+0 & 0 & 2 & 0 & 1 & -1 & \vdots & 5\\
+1 & 0 & 1 & 0 & 0 & -1 & \vdots & 2
+\end{array}\right]
+</script>
+The basis variables are now ($s_4$, $s_1$) and the dictionary is ($y$, $s_2$, $s_3$, $x$). Each of these dictionary variables has coefficient one in the corresponding column. Notice how these coefficients are the only nonzero entries in those columns, meaning they are not used in any other expression except the one defining them in terms of the basis variables. <br><br>
 
-First, note that we can either try to set $s_2$, $s_3$ or $x$ to zero by increasing $s_4$ from zero while keeping $s_1=0$, giving us three new candidate vertices. Visually, this represents all the intersections of the $s_1=0$ line with all the other lines besides $s_4=0$. It also clear that none of these points remain inside the feasible region. Mathematically, looking at the equations, this is represented by the fact that the only way to get $s_2$, $s_3$ or $x$ to zero while $s_1$ is already zero, is to make $s_4$ be negative. That's because the coefficient of $s_4$ in all the corresponding equations is positive. In conclusion, we cannot pivot away from the current boundary vertex into a new boundary vertex by staying on the $s_1=0$ line.<br><br>
+<p>After these two pivots, we are now in the coordinate system defined by slack variables $s_1$ and $s_4$. It is really easy to obtain the coordinates of this coordinate system's origin from the matrix. We simply equate the dictionary to the right-hand side: $(y, s_2, s_3, x) = (1,1,5,2)$ and the basis to zero: $(s_1, s_4) = (0,0)$. In particular, we note that at this origin all the slack variables are non-negative ($s_1=0$, $s_2=1$, $s_3=5$, $s_4=0$), meaning we are within the feasible region; and the Cartesian coordinates (or Cartesian slack variables) are $x=2$ and $y=1$. Two of the slack variables are zero, meaning this is a boundary vertex of the feasible region, and this vertex has Cartesian coordinates $(x,y)=(2,1)$.</p>
+</section>
 
-In that case, let's try the other route: keep $s_4=0$ and try to increase $s_1$ until another slack variable reaches zero. Notably, the $s_4=0$ line intersects all others, so we can decide to set any one of $s_2$, $s_3$, $x$ or $y$ to zero. 
+<section class="section-block">
+<h3>Pivoting from one boundary vertex to the next</h3>
+
+Suppose now, just like in the example of the previous section, that we want to pivot away from this vertex into the next boundary vertex.<br><br>
+
+When we were dealing with equations before, $s_4$ had positive coefficient in all the equations, meaning it could never drive the corresponding slack variables to zero. With matrices, the equivalent statement is to notice that all the elements in the $s_4$ column are negative or zero.<br><br>
+
+$s_1$, on the other hand, has three positive numbers in its column, meaning that it can pivot into either $s_2$, $s_3$ or $x$. The first one to get to zero as $s_1$ increases is $s_2$ (second row), meaning this is the next boundary vertex. Which slack variable is the first one to go to zero is determined by choosing the one with the smallest ratio to the RHS. Concretely:
 <ul>
-  <li>Setting $y=0$ is not possible because the coefficient of $s_1$ in that equation is positive</li>
-  <li>Setting $s_2=0$ is possible for $s_1=1$</li>
-  <li>Setting $s_3=0$ is possible for $s_1=2.5$</li>
-  <li>Setting $x=0$ is possible for $s_1=2$</li>
+  <li>In row 1 (variable $y$), the $s_1$ coefficient is negative, so $y$ cannot be pivoted into.</li>
+  <li>In row 2 (variable $s_2$), the $s_1$ coefficient is $1$, and the RHS is $1$, so their ratio is also $1$</li>
+  <li>In row 3 (variable $s_3$), the $s_1$ coefficient is $2$, and the RHS is $5$, so their ratio is $2.5$</li>
+  <li>In row 4 (variable $x$), the $s_1$ coefficient is $1$, and the RHS is $2$, so their ratio is $2$</li>
 </ul>
-From these four options, the only one that represents a vertex inside the feasible region is $s_2=0$. To achieve any of the other options, $s_2$ would necessarily reach negative values, violating the non-negativity of all the slack variables inside the feasible region.<br><br>
+The smallest ratio of all of this is $1$, meaning $s_2$ should be the chosen variable.  The code snippet below describes just that:
+<pre><code class="language-cpp">std::optional&lt;unsigned int&gt; find_lowest_ratio_row(const Matrix& matrix, unsigned int col, unsigned int num_constraints){
+    unsigned int last_col = matrix.cols()-1;
 
-With this exercise, we arrive at the important piece of information that the vertex defined by $s_2=s_4=0$ is a boundary vertex of the feasible region, just like the vertex defined by $s_1=s_4=0$. In order to proceed from here and find the next boundary vertices, we can simply change coordinates into the $(s_2, s_4)$ coordinate system and repeat the exact same process. Since we know that both $s_1=s_4=0$ and $s_2=s_4=0$ represent boundary vertices, we can then safely change variables from $(s_1,s_4)$ to $(s_2, s_4)$ with the guarantee that the new coordinate system is centered around a boundary vertex. Performing the change of variables:<br>
+    std::optional&lt;double&gt; smallest_ratio = std::nullopt;
+    std::optional&lt;unsigned int&gt; row = std::nullopt;
 
+    for(unsigned int i=0; i&lt;num_constraints; i++){
+        double entry = matrix(i, col);
+        double right = matrix(i, last_col);
+
+        if(entry &lt; tol || right &lt; tol){
+            continue;
+        }
+        double ratio = right/entry;
+
+        if(!smallest_ratio || ratio &lt; *smallest_ratio){
+            smallest_ratio = ratio;
+            row = i;
+        }
+    }
+    
+    return row;
+}</code></pre>
+
+To eliminate $s_1$ in favor of $s_2$, we just need to use the second row to eliminate all occurrences of $s_1$.
 <script type="math/tex; mode=display">
-\begin{aligned}
- y     &= s_4 - s_2 + 2 \\
- s_1   &= s_4 - s_2 + 1 \\
- s_3   &= -s_4 + 2s_2 + 3 \\
- x     &= s_2 + 1
-\end{aligned}
+\left[\begin{array}{ccccccccc}
+0 & 1 & 0 & 1 & 0 & -1 & \vdots & 2\\
+0 & 0 & 1 & 1 & 0 & -1 & \vdots & 1\\
+0 & 0 & 0 & -2 & 1 & -3 & \vdots & 3\\
+1 & 0 & 0 & -1 & 0 & 0 & \vdots & 1
+\end{array}\right]
 </script>
+The basis variables are now ($s_4$, $s_2$) and the dictionary is ($y$, $s_1$, $s_3$, $x$). Extracting the coordinates like before, we find $(x,y)=(1,2)$. This is the position of the next boundary vertex.<br><br>
 
-It is always useful to pause and double-check that the origin of the new coordinate system is indeed a boundary vertex. Setting $s_2=s_4=0$, we get $y=2$, $s_1=1$, $s_3=3$ and $x=1$. All of the slack variables are positive, meaning all the constraints are satisfied and this is indeed a boundary vertex.<br><br>
+In this particular case, there was only one possible next boundary vertex because the region was unbounded from one side. However, in general, this method enables us to easily pivot from any boundary vertex to any of its neighbouring boundary vertices.
 
-Now you might ask: Why is it so important to define everything in terms of coordinate systems? Why do we need all this machinery and perform so many changes of variables? The reason for this is that once you're in a coordinate system defined by slack variables, it is very easy to find all the vertices connected to the origin vertex. Each boundary vertex that is connected to the origin of the current coordinate system is reachable by moving along one of the basis axis. <br><br>
+</section>
 
-Thus, we arrive at the following prescription to move from one boundary vertex to the adjacent ones:
+<section class="section-block">
+<h3>Pivoting rules</h3>
+And so we arrive at the following rules for pivoting from one boundary vertex into the next:
 <ol>
-  <li>Choose a basis slack variable to remove from the coordinate system. </li>
-  <li>Find the first slack variable to go to zero as you increase the outgoing variable. It may happen that no slack variable can be found like this, meaning the region is unbounded in that direction.</li>
+  <li>Choose the variable that you want to remove from the coordinate system.</li>
+  <li>In its corresponding column, look at all the rows with positive entries, and pick the row that has the smallest ratio to the last column. That is, if the last column has value $b$ and the entry has value $a$, pick the row with smallest $b/a$.</li>
+  <li>The variable labelling this row is the one that's going to be the new coordinate.
+This process is equivalent to moving from one boundary vertex to another along the edge defined by all other basis variables being zero except the one being swapped out.</li>
 </ol>
-The following snippet shows how the systems of equations change as we pivot from one vertex to the other. Click on a non-highlighted line to use the corresponding slack variable for the new basis.
 
-<div class="widget_container">
-  <div id="pivot1" class="js_widget"></div>
-  <div id="pivot1aux" class="js_widget_coord"></div>
-</div>
+At this point, it makes sense to define the Simplex Tableau as the combination of a matrix and the variable bookkeeping:
 
+<pre><code class="language-cpp">using VectorI = Eigen::VectorXi;
 
-<p>This process of changing coordinates is called pivoting, and is very efficiently done with matrices, using Gaussian elimination.</p>
+class Tableau {
+    VectorI basis;
+    VectorI dictionary;
+    Matrix matrix;
+};</code></pre>
+
+The process of changing coordinate systems is a method of that class:
+
+<pre><code class="language-cpp">void Tableau::pivot(unsigned int var_out, unsigned int row){
+    // Gaussian elimination, plus keeping track of the change of variables
+
+    gaussian_elimination(matrix, row, var_out);
+
+    unsigned int var_in = dictionary(row);
+    const auto basis_index = index_of(basis, var_out);
+    basis(*basis_index) = var_in;
+    dictionary(row) = var_out;
+}</code></pre>
+
+where index_of simply returns the index of var_out in the basis, if it exists
+<pre><code class="language-cpp">std::optional&lt;unsigned int&gt; index_of(const VectorI& vector, unsigned int val){
+    for(unsigned int i=0; i&lt;vector.size(); i++){
+        if(vector(i) == val){
+            return i;
+        }
+    }
+    return std::nullopt;
+}</code></pre>
+
+Finally, the complete process of looking for the next boundary vertex and pivoting into it can be summarized in the following code snippet:
+<pre><code class="language-cpp">bool Tableau::simplex_pivot(unsigned int var_out){
+
+    // Can't pivot out of a variable if it's not in the basis
+    const auto basis_index = index_of(basis, var_out);
+    assert(basis_index);
+
+    const auto row = find_lowest_ratio_row(matrix, var_out, num_constraints);
+
+    // Cannot find next vertex - unbounded
+    if(!row){
+        return false;
+    }
+
+    pivot(var_out, *row);
+
+    return true;
+}
+</code></pre>
 
 </section>
 
 </div>
-</body>
+  </body>
+  <script type="module" src="./main.ts"></script>
   
 </html>

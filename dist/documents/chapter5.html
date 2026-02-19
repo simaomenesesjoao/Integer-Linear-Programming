@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />    
+    <meta charset="UTF-8" />
     <link rel="stylesheet" href="style.css">
     <title>Linear Programming - Simplex</title>
   </head>
@@ -10,199 +10,16 @@
 <div class="content">
 
 <section class="section-block">
-<h2>4. The Simplex method</h2>
-Now that we know how to move along boundary vertices, let's see how this can help us find the solution to Linear Programming problems. 
+<h2>5. Conclusion and additional notes</h2>
+<p>The Simplex Method is one of the most popular and powerful ways to solve Linear Programming problems, and one of the goals of this article was to make it more accessible to people learning about it.</p>
 
-<h3>Steering the pivot</h3>
+<p>For the sake of simplicity I haven't mentioned some pathological but critical cases where the rules stated are not enough to reach an optimal vertex. This happens when several different bases share one single vertex. Granted, this is not possible in 2D where I focused most of my examples, but it can and does happen in 3D. For instance, the pointy bit at the intersection of the four triangular faces of a square pyramid is one such case.</p>
 
-Suppose that given the constraints above, we are asked to maximize the expression $I=-2x-y$. There are a few possibilities:
-<ol>
-  <li>The answer lies on a vertex or an edge</li>
-  <li>There is no solution because the constraints represent an impossible region</li>
-  <li>The solution is unbounded</li>
-</ol>
-Given that we already found a boundary vertex, we know the region is not impossible. Plus, the expression increases in value in the direction of negative $x$ and $y$ so there is a good change it lies on one of the vertices and is not unbounded. <br><br>
+<p>I also did not comment on the algorithmic complexity of the Simplex algorithm. It is famously fast in practice (especially when compared to its brute-force counterpart mentioned in the beginning) but it can be exponentially bad in the worst case. The Klee-Minty hypercubes are the cannonical worst-case scenario for the Simplex algorithm, forcing it to visit <b>every single boundary vertex</b> and causing it to be exponential in the problem's dimensionality.</p>
 
-Let's see what happens as we move along the edges and change coordinate systems in the previous example. The first boundary vertex that we found was at the intersection of the $s_1=s_4=0$ lines. In terms of these coordinates, $I=-2s_{4}+s_{1}-5$. At the vertex, $I=-5$. The idea behind the Simplex method is to always move along edges which increase the cost function. Eventually, (because the region is convex) this should lead us to a vertex where the function can no longer be improved. The terms inside the cost function can tell us a lot about this. Examining $I=-2s_4+s_1-5$, we see that moving along the $s_1=0$ edge while increasing $s_4$ works to decrease the value of $I$ because the coefficient of $s_4$ is negative. In contrast, moving along the $s_4=0$ edge while increasing $s_1$ would increase $I$, as desired, because the coefficient of $s_1$ is positive. This means that, as we pivot along, so long as some coefficient in the cost function is positive, we can always keep going to increase its value. In other words, the coefficients of the cost function tell us which variables should be pivoted out! What if there are several positive coefficients? The Simplex method provides an additional prescription for this case: just choose the highest positive coefficient, in order to move as quickly as possible towards the optimal vertex. <br><br>
-
-Coming back to the example, let's try to reach the optimal vertex. In the current coordinate system, ($s_1, s_4$), $I$ has the form $I=-2s_{4}+s_{1}-5$ and is asking us to pivot out $s_1$. As we've seen in the previous example, this leads us to replace $s_1$ by $s_2$. In this new coordinate system, $I=-s_4-s_{2}-4$. At the origin of this coordinate system (the new boundary vertex), $I=-4$. It also tells us that no matter which direction we go, the cost function cannot be improved. We have therefore arrived at the optimal vertex.
+<p>Moving forward, I'd like to cover these and other topics related to LP (like Integer Linear Programming). For the time being, however, I thought the topics covered here were already interesting enough to be made into interactive widgets and explained from my own ideas and understanding. Keep an eye out for further updates!</p>
 
 </section>
-
-<section class="section-block">
-<h3>Simplex Method with matrices</h3>
-Just like before, using a tableau helps formalize this process. We just need to add an additional row, representing the coefficients of the cost function. The last column represents the value of the cost function at the origin of the current coordinate system. Here is how the complete tableau looks like in the beginning:
-<script type="math/tex; mode=display"> \left[\begin{array}{ccccccccc}
-0 & -1 & 1 & 0 & 0 & 0 & \vdots & -1\\
--1 & 0 & 0 & 1 & 0 & 0 & \vdots & -1\\
--1 & 1 & 0 & 0 & 1 & 0 & \vdots & 4\\
--1 & -1 & 0 & 0 & 0 & 1 & \vdots & -3\\
--2 & 1 & 0 & 0 & 0 & 0 & \vdots & 0
-\end{array}\right]
-</script>
-From here on, everything else is exactly the same as described so far, except that the last row does not represent a variable like the other rows. The largest positive coefficient of the last row represents the next variable to be pivoted out. The Simplex method is summarized as follows:
-<pre><code class="language-cpp"> bool simplex(Tableau& tableau){
-    // Find the largest cost function element
-
-    // The Simplex algorithm only works when all the rhs entries are non-negative
-    assert((tableau.get_rhs().array() &gt; -tol).all());
-    
-    while(true){
-        const auto index_largest = find_largest_positive(tableau.get_cost_function());
-
-        // Cannot improve cost function
-        if(!index_largest){
-            std::cout &lt;&lt; "Cannot improve further\n";
-            return true;
-        }
-
-        tableau.simplex_pivot(*index_largest);
-    }
-    return false;
-} </code></pre>
-
-It is worth emphasising that pivoting only works to provide a boundary vertex <b>if the starting vertex is itself a boundary vertex</b> (this is enforced by the assertion inside the code snippet). If it were not the case, there is no guarantee we will get what we want. We must then answer the question: how do we find a starting vertex in the first place? In the previous examples, we just happened to stumble upon a boundary vertex without giving it much thought while experimenting with pivoting, but we need a systematic way to do this. This is where artificial variables come in. 
-
-</section>
-
-<section class="section-block">
-<h3>Finding a boundary vertex - artificial variables</h3>
-The easiest boundary vertex to find (if it exists) is the Cartesian origin. This is the default basis used when describing the problem. If, in this basis, all the slack variables are positive and have the same sign as the right-hand side, then the Cartesian origin is a boundary vertex and the Simplex algorithm can proceed. In general, though, we will not be so lucky. The trick here is to embed the geometry in a higher dimensional space, such that a boundary vertex is trivial to find. Let's see this with an example. Consider maximizing $I=x+2y$ subject to<br>
-<script type="math/tex; mode=display">
-\begin{aligned}
-x &\ge 0 \\
-y &\ge 0 \\
-x + y &\ge 3 \\
-x + y &\le 9
-\end{aligned}
-</script>
-
-The constraints define the following region:
-
-<div class="widget_container">
-  <div id="region3" class="js_widget"></div>
-</div>
-
-Including slack variables (keeping in mind that $x$ and $y$ already function as slack variables for the Cartesian axes), we get <br>
-
-<script type="math/tex; mode=display">
-\begin{aligned}
-- x - y + s_{1} &= -3 \\
-\;\;x + y + s_{2} &= 9
-\end{aligned}
-</script>
-
-Let's analyze how the slack variables look like at the origin of the current basis ($x$, $y$). Setting $x=y=0$, we find $s_1=-3$, $s_2=9$. At the origin, two constraints are satisfied ($x=y=0$), meaning this is a vertex. However, $s_1\leq0$, so this point cannot be a boundary vertex. If it were not for $s_1$, we would already have a boundary vertex, so let's focus on this equation.<br><br>
-
-An easy way to make this equation valid for non-negative $s_1$ is to add an additional dimension and artificially add the corresponding variable to this equation (and this equation only, so it doesn't affect any other equations). Embedding this problem in 3D space, we can now claim that the basis is $(x,y,z)$. We are free to add the variable $z$ to the $s_1$ equation with any coefficient without changing the original problem, considering that when the equations get projected back into $z=0$, they remain unchanged. Then, we choose the coefficient to be one for simplicity, but to have the same sign as the right-hand side of the equation:<br>
-
-<script type="math/tex; mode=display">
-\begin{aligned}
-- x - y - z + s_{1} &= -3
-\end{aligned}
-</script>
-
-
-Now, it's trivial to find a boundary point of this extended problem. Setting the original Cartesian coordinates $(x, y)$ to zero and $z=3$ to match the RHS, we find that $s_1=0$ and $s_2=9$. In sum, we have managed to set three slack variables to zero ($x$, $y$, $s_1$) while the remaining ones are positive ($s_2=9$)! This means that we have in fact found a boundary vertex of this higher-dimensional geometry! The original bounded region is now a facet of this 3D polyhedron, which is also convex. The interactive animation below shows this:<br><br>
-
-<div id="three-container">
-  <canvas id="bg"></canvas>
-</div>
-
-From this point, we just need to pivot from the initial basis $(x,y,z)$ into the new basis $(x,y,s_1)$ and then pivot along its edges until we find a vertex such that $z=0$. Then, we will have found a boundary vertex of the original bounded region. In order to figure out which variables to pivot into, we can simply choose the pivots that <b>minimize</b> $z$. This is effectively done by maximizing the cost function $I=-z$.
-
-so we now have a well-defined Linear Programming problem, which can be solved with the Simplex method we already know! And now, we already start from a boundary vertex, so it's ready to go. <br><br>
-
-
-We then arrive at the following procedure:
-<ol>
-  <li>Identify the equations whose slack variables have the opposite sign of the RHS</li>
-  <li>For each of those equations, add a different artificial variable (call it $a_i$), with the same sign as the RHS</li>
-  <li>To find the starting boundary vertex, set all base variables to zero, and all the artificial variables to the value of the RHS. If you solve for the slack variables, you'll now find they are all non-negative</li>
-  <li>Now that we know that is a boundary vertex, we pivot to it from the origin</li>
-  <li>Apply the Simplex algorithm to minimize the sum of artificial variables. If a solution is found such that all artificial variables are zero, we have successfully pivoted back into the original lower-dimensional geometry and can proceed with the Simplex algorithm to maximize the cost function we're actually interested in</li>
-</ol>
-
-Coming back to our previous example, the original tableau looks like this:
-<script type="math/tex; mode=display">
-\left[\begin{array}{ccccccccc}
--1 & -1 & 1 & 0 & \vdots & -3\\
- 1 &  1 & 0 & 1 & \vdots & 9\\
- 1 &  2 & 0 & 0 & \vdots & 0
-\end{array}\right]
-</script>
-Adding the artificial variable $z$ in its new column and the artificial cost function as a new row, we get
-<script type="math/tex; mode=display">
-\left[\begin{array}{ccccccccccc}
--1 & -1 & \vdots & -1 & \vdots & 1 & 0 & \vdots & -3\\
-1 & 1 & \vdots & 0 & \vdots & 0 & 1 & \vdots & 9\\
-1 & 2 & \vdots & 0 & \vdots & 0 & 0 & \vdots & 0\\
-0 & 0 & \vdots & -1 & \vdots & 0 & 0 & \vdots & 0
-\end{array}\right]
-</script>
-The basis is $(x,y,z)$ and the dictionary is $(s_1, s_2)$. The tableau is set up, but we are still not at a boundary vertex. To get there and start the Simplex algorithm, we need to pivot out the artificial variables in favor of the corresponding slack variable. Remember that we do this because we know that the vertex where that slack variable (in this case $s_1$) is zero is a boundary vertex of the higher-dimensional geometry. After pivoting, we get
-<script type="math/tex; mode=display">
-\left[\begin{array}{ccccccccccc}
-1 & 1 & \vdots & 1 & \vdots & -1 & 0 & \vdots & 3\\
-1 & 1 & \vdots & 0 & \vdots & 0 & 1 & \vdots & 9\\
-1 & 2 & \vdots & 0 & \vdots & 0 & 0 & \vdots & 0\\
-1 & 1 & \vdots & 0 & \vdots & -1 & 0 & \vdots & 3
-\end{array}\right]
-</script>
-The basis is now $(x,y,s_1)$ and the dictionary is $(z, s_2)$. Glancing at the right-most column, we see that all the values corresponding to slack variables are non-negative, meaning we have pivoted into a boundary vertex. This time, it was not a fortunate accident, but the consequence of using artificial variables. The following code performs this initial set of pivots:<br>
-
-<pre><code class="language-cpp">void pivot_into_feasible(Tableau& tableau){
-    for(unsigned int i=0; i&lt;tableau.num_artificial; i++){
-        unsigned int j = i+tableau.basis_dimension-tableau.num_artificial;
-        tableau.simplex_pivot(j);
-    }
-}
-</code></pre>
-
-Now we can finally start the Simplex algorithm to maximize the cost function. For the first step of the Simplex algorithm, we choose the variable having the largest coefficient in the artificial cost function. In this case, either $x$ or $y$ work. Choosing $x$ as the next pivot, the row with the smallest RHS/coefficient ratio is the first one, meaning we swap $x$ with $z$.
-<script type="math/tex; mode=display">
-\left[\begin{array}{ccccccccccc}
-1 & 1 & \vdots & 1 & \vdots & -1 & 0 & \vdots & 3\\
-0 & 0 & \vdots & -1 & \vdots & 1 & 1 & \vdots & 6\\
-0 & 1 & \vdots & 0 & \vdots & 1 & 0 & \vdots & -3\\
-0 & 0 & \vdots & -1 & \vdots & 0 & 0 & \vdots & 0
-\end{array}\right]
-</script>
-The basis is now $(z,y,s_1)$ and the dictionary is $(x, s_2)$. The cost function has now reached the value zero, meaning we managed to reduce the artificial variable all the way down to zero while staying on boundary vertices. Disposing of the artificial variable, we end up with a tableau that can immediately be used to solve the original problem. The last row (representing the artificial cost function) and the $z$ column can now be discarded, leaving us with the following tableau
-<script type="math/tex; mode=display">
-\left[\begin{array}{ccccccccc}
-1 & 1 & -1 & 0 & \vdots & 3\\
-0 & 0 & 1 & 1 & \vdots & 6\\
-0 & 1 & 1 & 0 & \vdots & -3
-\end{array}\right]
-</script>
-The basis is now $(y,s_1)$ and the dictionary is $(x, s_2)$. The original cost function reads $I=y+s_1+3$. Now we apply the Simplex algorithm again, choosing to pivot $y$ in favor of $x$ (first row)
-
-<script type="math/tex; mode=display">
-\left[\begin{array}{cccccc}
-1 & 1 & -1 & 0 & \vdots & 3\\
-0 & 0 & 1 & 1 & \vdots & 6\\
--1 & 0 & 2 & 0 & \vdots & -6
-\end{array}\right]
-</script>
-The basis is now $(x,s_1)$ and the dictionary is $(y, s_2)$. Finally, pivoting $s_1$ away in favor of $s_2$, we find 
-<script type="math/tex; mode=display">
-\left[\begin{array}{cccccc}
-1 & 1 & 0 & 1 & \vdots & 9\\
-0 & 0 & 1 & 1 & \vdots & 6\\
--1 & 0 & 0 & -2 & \vdots & -18
-\end{array}\right]
-</script>
-The basis is now $(x,s_2)$ and the dictionary is $(y, s_1)$. The cost function reads $I=-x-s_2 + 18$. The coordinates of the origin vertex are $(x,y)=(0,9)$. All the variables' coefficients are negative in the cost function now, meaning we have reached the end of the Simplex algorithm and found the optimal vertex at $(x,y)=(0,9)$. Try it out for yourself in the interactive widget below! Just like before, clicking on lines performs a change of variables, but now you can also see what happens to the matrix. The direction of increasing cost function is represented by the red arrow.<br><br>
-
-<div class="widget_container">
-  <div id="pivot2" class="js_widget"></div>
-  <div id="pivot2aux2" class="js_widget_coord"></div>
-  <div id="pivot2aux" class="js_widget_matrix"></div>
-</div>
-
-</section>
-
 </div>
   </body>
   <script type="module" src="./main.ts"></script>
